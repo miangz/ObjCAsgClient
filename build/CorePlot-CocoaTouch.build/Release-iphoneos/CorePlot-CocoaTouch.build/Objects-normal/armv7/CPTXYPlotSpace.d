@@ -1,0 +1,25 @@
+dependencies: \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTXYPlotSpace.m \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTXYPlotSpace.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTAnimation.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTDefinitions.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTPlotSpace.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTResponder.h \
+  /Users/miang/Desktop/asignment1/framework/iPhoneOnly/CPTPlatformSpecificDefines.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTAnimationOperation.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTAnimationPeriod.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTAxisSet.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTLayer.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTExceptions.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTGraph.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTBorderedLayer.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTAnnotationHostLayer.h \
+  /Users/miang/Desktop/asignment1/framework/iPhoneOnly/CPTGraphHostingView.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTMutablePlotRange.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTPlotRange.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTPlot.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTNumericDataType.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTPlotArea.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTPlotAreaFrame.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTUtilities.h \
+  /Users/miang/Desktop/asignment1/framework/Source/NSCoderExtensions.h

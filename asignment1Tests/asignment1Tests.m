@@ -7,16 +7,19 @@
 //
 
 #import <XCTest/XCTest.h>
-
+#import "ProfilerClk.h"
 @interface asignment1Tests : XCTestCase
 
 @end
 
-@implementation asignment1Tests
+@implementation asignment1Tests{
+    ProfilerClk *clk;
+}
 
 - (void)setUp
 {
     [super setUp];
+    clk = [ProfilerClk new];
     // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
@@ -26,9 +29,20 @@
     [super tearDown];
 }
 
-- (void)testExample
+- (void)testStart
 {
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+    [clk start];
+    XCTAssertNotEqual(clk.st, 0, @"start fail");
+}
+
+-(void)testNano{
+    [clk start];
+    double delayInSeconds = 1.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [clk printNanoDifferent];
+        XCTAssertTrue(clk.elapsedNano/1000000000 > 0, @"clock can't measure nanosec");
+    });
 }
 
 @end

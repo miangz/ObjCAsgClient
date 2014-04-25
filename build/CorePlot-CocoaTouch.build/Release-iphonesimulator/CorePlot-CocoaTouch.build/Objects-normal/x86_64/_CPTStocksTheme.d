@@ -1,0 +1,27 @@
+dependencies: \
+  /Users/miang/Desktop/asignment1/framework/Source/_CPTStocksTheme.m \
+  /Users/miang/Desktop/asignment1/framework/Source/_CPTStocksTheme.h \
+  /Users/miang/Desktop/asignment1/framework/Source/_CPTXYTheme.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTTheme.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTBorderedLayer.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTAnnotationHostLayer.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTLayer.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTDefinitions.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTResponder.h \
+  /Users/miang/Desktop/asignment1/framework/iPhoneOnly/CPTPlatformSpecificDefines.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTColor.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTFill.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTGradient.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTMutableLineStyle.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTLineStyle.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTMutableTextStyle.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTTextStyle.h \
+  /Users/miang/Desktop/asignment1/framework/iPhoneOnly/CPTTextStylePlatformSpecific.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTPlotAreaFrame.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTUtilities.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTXYAxis.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTAxis.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTXYAxisSet.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTAxisSet.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTXYGraph.h \
+  /Users/miang/Desktop/asignment1/framework/Source/CPTGraph.h

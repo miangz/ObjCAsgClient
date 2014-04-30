@@ -12,6 +12,8 @@
 		EB11A62E18F4EF2E00B9E6D6 /* table_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = EB11A62D18F4EF2E00B9E6D6 /* table_Tests.m */; };
 		EB11A63718F6625E00B9E6D6 /* EditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB11A63618F6625E00B9E6D6 /* EditViewController.m */; };
 		EB1A7F2A18FE9C4500EAAB04 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1A7F2918FE9C4500EAAB04 /* DetailViewController.m */; };
+		EB3976D6190FA60000E5F1BB /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3976D5190FA60000E5F1BB /* QuartzCore.framework */; };
+		EB3976D8190FA60800E5F1BB /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3976D7190FA60800E5F1BB /* Accelerate.framework */; };
 		EB3B8A0D18FE3309005930B0 /* StocklistViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB3B8A0C18FE3309005930B0 /* StocklistViewController.m */; };
 		EB7FA39418F4125000B08F3C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA39318F4125000B08F3C /* Foundation.framework */; };
 		EB7FA39618F4125000B08F3C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA39518F4125000B08F3C /* CoreGraphics.framework */; };
@@ -28,6 +30,7 @@
 		EB7FA3BF18F4125000B08F3C /* asignment1Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7FA3BE18F4125000B08F3C /* asignment1Tests.m */; };
 		EB7FA3CC18F4126100B08F3C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7FA3C918F4126100B08F3C /* ViewController.m */; };
 		EB7FA3CD18F4126100B08F3C /* ProfilerClk.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7FA3CB18F4126100B08F3C /* ProfilerClk.m */; };
+		EB94382D1910B34A00B4CB1E /* libCorePlot-CocoaTouch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB94382C1910B34500B4CB1E /* libCorePlot-CocoaTouch.a */; };
 		EBF711B7190631DD00C2DAA3 /* BEMAnimations.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF711B0190631DD00C2DAA3 /* BEMAnimations.m */; };
 		EBF711B8190631DD00C2DAA3 /* BEMCircle.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF711B2190631DD00C2DAA3 /* BEMCircle.m */; };
 		EBF711B9190631DD00C2DAA3 /* BEMLine.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF711B4190631DD00C2DAA3 /* BEMLine.m */; };
@@ -49,6 +52,20 @@
 			remoteGlobalIDString = EB7FA38F18F4125000B08F3C;
 			remoteInfo = asignment1;
 		};
+		EB94382B1910B34500B4CB1E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EB9438251910B34500B4CB1E /* CorePlot-CocoaTouch.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BC9B83470FB8A0A40035D8DA;
+			remoteInfo = "CorePlot-CocoaTouch";
+		};
+		EB94382E1910B36900B4CB1E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EB9438251910B34500B4CB1E /* CorePlot-CocoaTouch.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = BC9B83460FB8A0A40035D8DA;
+			remoteInfo = "CorePlot-CocoaTouch";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -61,6 +78,8 @@
 		EB11A63618F6625E00B9E6D6 /* EditViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditViewController.m; sourceTree = "<group>"; };
 		EB1A7F2818FE9C4500EAAB04 /* DetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
 		EB1A7F2918FE9C4500EAAB04 /* DetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
+		EB3976D5190FA60000E5F1BB /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		EB3976D7190FA60800E5F1BB /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		EB3B8A0B18FE3309005930B0 /* StocklistViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StocklistViewController.h; sourceTree = "<group>"; };
 		EB3B8A0C18FE3309005930B0 /* StocklistViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StocklistViewController.m; sourceTree = "<group>"; };
 		EB7FA39018F4125000B08F3C /* asignment1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = asignment1.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -84,6 +103,7 @@
 		EB7FA3C918F4126100B08F3C /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		EB7FA3CA18F4126100B08F3C /* ProfilerClk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProfilerClk.h; sourceTree = "<group>"; };
 		EB7FA3CB18F4126100B08F3C /* ProfilerClk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProfilerClk.m; sourceTree = "<group>"; };
+		EB9438251910B34500B4CB1E /* CorePlot-CocoaTouch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "CorePlot-CocoaTouch.xcodeproj"; path = "framework/CorePlot-CocoaTouch.xcodeproj"; sourceTree = "<group>"; };
 		EBF711AF190631DD00C2DAA3 /* BEMAnimations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMAnimations.h; sourceTree = "<group>"; };
 		EBF711B0190631DD00C2DAA3 /* BEMAnimations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMAnimations.m; sourceTree = "<group>"; };
 		EBF711B1190631DD00C2DAA3 /* BEMCircle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMCircle.h; sourceTree = "<group>"; };
@@ -107,6 +127,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB94382D1910B34A00B4CB1E /* libCorePlot-CocoaTouch.a in Frameworks */,
+				EB3976D8190FA60800E5F1BB /* Accelerate.framework in Frameworks */,
+				EB3976D6190FA60000E5F1BB /* QuartzCore.framework in Frameworks */,
 				EB7FA39618F4125000B08F3C /* CoreGraphics.framework in Frameworks */,
 				EB7FA39818F4125000B08F3C /* UIKit.framework in Frameworks */,
 				EB7FA39418F4125000B08F3C /* Foundation.framework in Frameworks */,
@@ -169,6 +192,8 @@
 		EB7FA39218F4125000B08F3C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EB3976D7190FA60800E5F1BB /* Accelerate.framework */,
+				EB3976D5190FA60000E5F1BB /* QuartzCore.framework */,
 				EB7FA39318F4125000B08F3C /* Foundation.framework */,
 				EB7FA39518F4125000B08F3C /* CoreGraphics.framework */,
 				EB7FA39718F4125000B08F3C /* UIKit.framework */,
@@ -180,6 +205,7 @@
 		EB7FA39918F4125000B08F3C /* asignment1 */ = {
 			isa = PBXGroup;
 			children = (
+				EB9438251910B34500B4CB1E /* CorePlot-CocoaTouch.xcodeproj */,
 				EB7FA3A218F4125000B08F3C /* AppDelegate.h */,
 				EB7FA3A318F4125000B08F3C /* AppDelegate.m */,
 				EB7FA3A518F4125000B08F3C /* Main.storyboard */,
@@ -229,6 +255,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		EB9438261910B34500B4CB1E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EB94382C1910B34500B4CB1E /* libCorePlot-CocoaTouch.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		EBF711AE1906319A00C2DAA3 /* BEMA */ = {
 			isa = PBXGroup;
 			children = (
@@ -276,6 +310,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				EB94382F1910B36900B4CB1E /* PBXTargetDependency */,
 			);
 			name = asignment1;
 			productName = asignment1;
@@ -324,10 +359,17 @@
 			knownRegions = (
 				en,
 				Base,
+				English,
 			);
 			mainGroup = EB7FA38718F4125000B08F3C;
 			productRefGroup = EB7FA39118F4125000B08F3C /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = EB9438261910B34500B4CB1E /* Products */;
+					ProjectRef = EB9438251910B34500B4CB1E /* CorePlot-CocoaTouch.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				EB7FA38F18F4125000B08F3C /* asignment1 */,
@@ -336,6 +378,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		EB94382C1910B34500B4CB1E /* libCorePlot-CocoaTouch.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libCorePlot-CocoaTouch.a";
+			remoteRef = EB94382B1910B34500B4CB1E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		EB11A62318F4EF2E00B9E6D6 /* Resources */ = {
@@ -413,6 +465,11 @@
 			isa = PBXTargetDependency;
 			target = EB7FA38F18F4125000B08F3C /* asignment1 */;
 			targetProxy = EB7FA3B618F4125000B08F3C /* PBXContainerItemProxy */;
+		};
+		EB94382F1910B36900B4CB1E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "CorePlot-CocoaTouch";
+			targetProxy = EB94382E1910B36900B4CB1E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -574,6 +631,11 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "asignment1/asignment1-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/OSX10.8.xctoolchain/usr/include,
+					"/Users/miang/Desktop/asignment1/**",
+				);
 				INFOPLIST_FILE = "asignment1/asignment1-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -588,6 +650,11 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "asignment1/asignment1-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/OSX10.8.xctoolchain/usr/include,
+					"/Users/miang/Desktop/asignment1/**",
+				);
 				INFOPLIST_FILE = "asignment1/asignment1-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -14,6 +14,9 @@
 
 @implementation DetailViewController{
     NSArray *data;
+    CPTXYGraph *graph;
+    float min;
+    float max;
 }
 @synthesize stockName;
 
@@ -174,7 +177,10 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
+-(void)back{
+    [self dismissViewControllerAnimated:NO completion:nil];
+    
+}
 -(void)initGraph{
     //Graph
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -196,24 +202,29 @@
         
         self.ArrayOfValues = [[NSMutableArray alloc] init];
         self.ArrayOfDates = [[NSMutableArray alloc] init];
+        
+        max = -1;
+        min = 99999999;
         for (int i = 1; (i*7)+7 < data.count; i++) {
             [self.ArrayOfValues insertObject:[data objectAtIndex:i*7+6] atIndex:0];//(arc4random() % 70000)]];
-            [self.ArrayOfDates addObject:@""];
+            NSRange r = NSMakeRange(8, 2);
+            NSString *day = [[data objectAtIndex:i*7] substringWithRange:r];
+            [self.ArrayOfDates insertObject:day atIndex:0];
+            float value = [[data objectAtIndex:i*7+6] floatValue];
+            NSLog(@"value : %f",value);
+            if (value>max) {
+                max = value;
+            }
+            if (value<min) {
+                min = value;
+            }
             
         }
+//        BEM Graph
+//        [self createBEMGraph];
         
-        //Another Graph
-        self.myGraph = [[BEMSimpleLineGraphView alloc]initWithFrame:CGRectMake(0, 280, 320, 200)];
-        self.myGraph.enableTouchReport = YES;
-        self.myGraph.colorTop = [UIColor lightGrayColor];//[UIColor colorWithRed:0.0 green:140.0/255.0 blue:255.0/255.0 alpha:1.0];;
-        self.myGraph.colorBottom = [UIColor colorWithRed:0.0 green:140.0/255.0 blue:255.0/255.0 alpha:1.0];;
-        self.myGraph.colorLine = [UIColor whiteColor];
-        self.myGraph.colorXaxisLabel = [UIColor whiteColor];
-        self.myGraph.widthLine = 3.0;
-        self.myGraph.enableTouchReport = NO;
-        self.myGraph.enableBezierCurve = YES;
-        self.myGraph.delegate = self;
-        [self.view addSubview:self.myGraph];
+//        core plot graph
+        [self createCorePlotGraph];
         NSLog(@"end load graph");
         
         UITextField *txtMonth = [[UITextField alloc]initWithFrame:CGRectMake(self.view.frame.size.width-60, self.view.frame.size.height-10, 60, 10)];
@@ -224,56 +235,199 @@
     });
 }
 
--(void)back{
-    [self dismissViewControllerAnimated:NO completion:nil];
+#pragma Core plot graph
+-(void)createCorePlotGraph{
     
+    // Create graph from theme
+    graph = [[CPTXYGraph alloc] initWithFrame:CGRectZero];
+    CPTTheme *theme = [CPTTheme themeNamed:kCPTDarkGradientTheme];
+    [graph applyTheme:theme];
+    CPTGraphHostingView *hostingView = [[CPTGraphHostingView alloc]initWithFrame:CGRectMake(0, 280, 320, 200)];//self.view.frame.size.width, self.view.frame.size.height)];//(CPTGraphHostingView *)self.view;
+    hostingView.collapsesLayers = NO; // Setting to YES reduces GPU memory usage, but can slow drawing/scrolling
+
+    hostingView.hostedGraph     = graph;
+    
+    graph.paddingLeft   = 0.0;
+    graph.paddingTop    = 0.0;
+    graph.paddingRight  = 0.0;
+    graph.paddingBottom = 0.0;
+    
+    
+    // Axes
+    CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
+    CPTXYAxis *x          = axisSet.xAxis;
+    x.majorIntervalLength         = CPTDecimalFromDouble(0.5);
+    x.minorTicksPerInterval       = 5;
+    x.orthogonalCoordinateDecimal = CPTDecimalFromDouble(0);
+    x.delegate = self;
+
+    
+    CPTXYAxis *y = axisSet.yAxis;
+    y.majorIntervalLength         = CPTDecimalFromDouble((max-min)/5);//distant bt 2 label 
+    y.minorTicksPerInterval       = 5;
+    y.orthogonalCoordinateDecimal = CPTDecimalFromDouble(0);
+    y.alternatingBandFills        = @[[[CPTColor whiteColor] colorWithAlphaComponent:0.1], [NSNull null]];
+    y.delegate             = self;
+    
+    [self.view addSubview:hostingView];
+
+
+    // Create a line graph
+    CPTScatterPlot *dataSourceLinePlot = [[CPTScatterPlot alloc] init];
+    CPTMutableLineStyle *lineStyle = [CPTMutableLineStyle lineStyle];
+    lineStyle                        = [CPTMutableLineStyle lineStyle];
+    lineStyle.lineWidth              = 3.0;
+    lineStyle.lineColor              = [CPTColor colorWithComponentRed:0.3 green:0.7 blue:0.9 alpha:1];
+    dataSourceLinePlot.dataLineStyle = lineStyle;
+    dataSourceLinePlot.identifier    = @"Green Plot";
+    dataSourceLinePlot.dataSource    = self;
+    
+    // Put an area gradient under the plot above
+    CPTColor *areaColor       = [CPTColor colorWithComponentRed:0.3 green:0.7 blue:0.9 alpha:0.8];
+    CPTGradient *areaGradient = [CPTGradient gradientWithBeginningColor:areaColor endingColor:[CPTColor clearColor]];
+    areaGradient.angle = -90.0;
+    CPTFill *areaGradientFill = [CPTFill fillWithGradient:areaGradient];
+    dataSourceLinePlot.areaFill      = areaGradientFill;
+    dataSourceLinePlot.areaBaseValue = CPTDecimalFromDouble(min-min/5);//fill under graph to 0
+    
+    dataSourceLinePlot.opacity = 0.0;
+    [graph addPlot:dataSourceLinePlot];
+    
+    CABasicAnimation *fadeInAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    fadeInAnimation.duration            = 1.0;
+    fadeInAnimation.removedOnCompletion = NO;
+    fadeInAnimation.fillMode            = kCAFillModeForwards;
+    fadeInAnimation.toValue             = @1.0;
+    [dataSourceLinePlot addAnimation:fadeInAnimation forKey:@"animateOpacity"];
+    
+    
+    
+    // Setup plot space
+    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)graph.defaultPlotSpace;
+    plotSpace.allowsUserInteraction = YES;
+    
+    [plotSpace scaleToFitPlots:[NSArray arrayWithObjects:dataSourceLinePlot,nil]];
+	CPTMutablePlotRange *xRange = [plotSpace.xRange mutableCopy];
+	[xRange expandRangeByFactor:CPTDecimalFromCGFloat(1.4)];
+	plotSpace.xRange = xRange;
+	CPTMutablePlotRange *yRange = [plotSpace.yRange mutableCopy];
+	[yRange expandRangeByFactor:CPTDecimalFromCGFloat(1.1f)];
+	plotSpace.yRange = yRange;
+    
+
 }
 
-#pragma mark - SimpleLineGraph Data Source
+#pragma mark -
+#pragma mark Plot Data Source Methods
 
-- (NSInteger)numberOfPointsInLineGraph:(BEMSimpleLineGraphView *)graph {
-    return (int)[self.ArrayOfValues count];
+-(NSUInteger)numberOfRecordsForPlot:(CPTPlot *)plot
+{
+    return [self.ArrayOfValues count];
 }
 
-- (CGFloat)lineGraph:(BEMSimpleLineGraphView *)graph valueForPointAtIndex:(NSInteger)index {
-    return [[self.ArrayOfValues objectAtIndex:index] floatValue];
+-(NSNumber *)numberForPlot:(CPTPlot *)plot field:(NSUInteger)fieldEnum recordIndex:(NSUInteger)index
+{
+
+    if (fieldEnum == CPTScatterPlotFieldX) {
+        return [NSNumber numberWithInt:index];
+    }
+
+    return [self.ArrayOfValues objectAtIndex:index];
 }
 
-#pragma mark - SimpleLineGraph Delegate
-
-- (NSInteger)numberOfGapsBetweenLabelsOnLineGraph:(BEMSimpleLineGraphView *)graph {
-    return 1;
+#pragma mark -
+//#pragma mark Axis Delegate Methods
+//
+-(BOOL)axis:(CPTAxis *)axis shouldUpdateAxisLabelsAtLocations:(NSSet *)locations
+{
+    CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
+    if (axis == axisSet.xAxis) {
+        return NO;
+    }
+    
+    
+    static CPTTextStyle *positiveStyle = nil;
+    static CPTTextStyle *negativeStyle = nil;
+    
+    NSFormatter *formatter = axis.labelFormatter;
+    CGFloat labelOffset    = axis.labelOffset;
+    NSDecimalNumber *zero  = [NSDecimalNumber zero];
+    
+    NSMutableSet *newLabels = [NSMutableSet set];
+    
+    for ( NSNumber *tickLocation in locations ) {
+        
+       
+        CPTTextStyle *theLabelTextStyle;
+        
+        if ( [tickLocation isGreaterThanOrEqualTo:zero] ) {
+            if ( !positiveStyle ) {
+                CPTMutableTextStyle *newStyle = [axis.labelTextStyle mutableCopy];
+                newStyle.color = [CPTColor colorWithComponentRed:0.3 green:0.7 blue:0.9 alpha:1];
+                positiveStyle  = newStyle;
+            }
+            theLabelTextStyle = positiveStyle;
+        }
+        else {
+            if ( !negativeStyle ) {
+                CPTMutableTextStyle *newStyle = [axis.labelTextStyle mutableCopy];
+                newStyle.color = [CPTColor redColor];
+                negativeStyle  = newStyle;
+            }
+            theLabelTextStyle = negativeStyle;
+        }
+        
+        NSString *labelString       = [formatter stringForObjectValue:tickLocation];
+        CPTTextLayer *newLabelLayer = [[CPTTextLayer alloc] initWithText:labelString style:theLabelTextStyle];
+        
+        CPTAxisLabel *newLabel = [[CPTAxisLabel alloc] initWithContentLayer:newLabelLayer];
+        newLabel.tickLocation = tickLocation.decimalValue;
+        newLabel.offset       = labelOffset;
+        
+        [newLabels addObject:newLabel];
+    }
+    
+    axis.axisLabels = newLabels;
+    
+    return NO;
 }
 
-- (NSString *)lineGraph:(BEMSimpleLineGraphView *)graph labelOnXAxisForIndex:(NSInteger)index {
-    return [self.ArrayOfDates objectAtIndex:index];
-}
-
-- (void)lineGraph:(BEMSimpleLineGraphView *)graph didTouchGraphWithClosestIndex:(NSInteger)index {
-    //    self.labelValues.text = [NSString stringWithFormat:@"%@", [self.ArrayOfValues objectAtIndex:index]];
-    //    self.labelDates.text = [NSString stringWithFormat:@"in %@", [self.ArrayOfDates objectAtIndex:index]];
-}
-
-- (void)lineGraph:(BEMSimpleLineGraphView *)graph didReleaseTouchFromGraphWithClosestIndex:(CGFloat)index {
-//    [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-//        //        self.labelValues.alpha = 0.0;
-//        //        self.labelDates.alpha = 0.0;
-//    } completion:^(BOOL finished){
-//        //
-//        //        self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSum] intValue]];
-//        //        self.labelDates.text = [NSString stringWithFormat:@"between 2000 and %@", [self.ArrayOfDates lastObject]];
-//        
-//        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-//            //            self.labelValues.alpha = 1.0;
-//            //            self.labelDates.alpha = 1.0;
-//        } completion:nil];
-//    }];
-}
-
-- (void)lineGraphDidFinishLoading:(BEMSimpleLineGraphView *)graph {
-    //    self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSum] intValue]];
-    //    self.labelDates.text = [NSString stringWithFormat:@"between 2000 and %@", [self.ArrayOfDates lastObject]];
-}
-
+//#pragma BEM
+//-(void)createBEMGraph{
+//    //Another Graph
+//    self.myGraph = [[BEMSimpleLineGraphView alloc]initWithFrame:CGRectMake(0, 280, 320, 200)];
+//    self.myGraph.enableTouchReport = YES;
+//    self.myGraph.colorTop = [UIColor lightGrayColor];//[UIColor colorWithRed:0.0 green:140.0/255.0 blue:255.0/255.0 alpha:1.0];;
+//    self.myGraph.colorBottom = [UIColor colorWithRed:0.0 green:140.0/255.0 blue:255.0/255.0 alpha:1.0];;
+//    self.myGraph.colorLine = [UIColor whiteColor];
+//    self.myGraph.colorXaxisLabel = [UIColor whiteColor];
+//    self.myGraph.widthLine = 3.0;
+//    self.myGraph.enableTouchReport = NO;
+//    self.myGraph.enableBezierCurve = YES;
+//    self.myGraph.delegate = self;
+//    [self.view addSubview:self.myGraph];
+//}
+//
+//
+//#pragma mark - SimpleLineGraph Data Source
+//
+//- (NSInteger)numberOfPointsInLineGraph:(BEMSimpleLineGraphView *)graph {
+//    return (int)[self.ArrayOfValues count];
+//}
+//
+//- (CGFloat)lineGraph:(BEMSimpleLineGraphView *)graph valueForPointAtIndex:(NSInteger)index {
+//    return [[self.ArrayOfValues objectAtIndex:index] floatValue];
+//}
+//
+//#pragma mark - SimpleLineGraph Delegate
+//
+//- (NSInteger)numberOfGapsBetweenLabelsOnLineGraph:(BEMSimpleLineGraphView *)graph {
+//    return 1;
+//}
+//
+//- (NSString *)lineGraph:(BEMSimpleLineGraphView *)graph labelOnXAxisForIndex:(NSInteger)index {
+//    return [self.ArrayOfDates objectAtIndex:index];
+//}
+//
 
 @end

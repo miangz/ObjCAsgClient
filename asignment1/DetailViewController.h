@@ -7,13 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "BEMSimpleLineGraphView.h"
+//#import "BEMSimpleLineGraphView.h"
+#import "CorePlot-CocoaTouch.h"
 
-@interface DetailViewController : UIViewController<BEMSimpleLineGraphDelegate>
+@interface DetailViewController : UIViewController<CPTPlotDataSource, CPTAxisDelegate>
+//BEMSimpleLineGraphDelegate
 
-
-@property BEMSimpleLineGraphView *myGraph;
-//@property CPTXYGraph *graph;
+//@property BEMSimpleLineGraphView *myGraph;        
 @property NSMutableArray *ArrayOfValues;
 @property NSMutableArray *ArrayOfDates;
 @property NSString *stockName;

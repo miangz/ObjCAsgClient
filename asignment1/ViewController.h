@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController<UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,UIGestureRecognizerDelegate>
+@interface ViewController : UIViewController<UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,UIGestureRecognizerDelegate,NSStreamDelegate>
 
 
 
@@ -18,6 +18,12 @@
 @property NSMutableArray *csvArr;
 @property NSMutableArray *nameArr;
 @property int stockListNO;
+
+@property NSInputStream *inputStream;
+@property NSOutputStream *outputStream;
+@property (copy) NSData  *data ;
+
+- (void) sendMessage:(NSString *)string;
 
 -(void)retrieveData:(NSURL *)url;
 

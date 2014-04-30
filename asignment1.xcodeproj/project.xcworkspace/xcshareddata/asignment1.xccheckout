@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>490294BB-6046-447A-817E-F673B39DCD6E</string>
+	<key>IDESourceControlProjectName</key>
+	<string>asignment1</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>82E9176E-DA73-4861-95EE-5B992A3F8151</key>
+		<string>https://github.com/miangz/miang.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>asignment1.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>82E9176E-DA73-4861-95EE-5B992A3F8151</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/miangz/miang.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>82E9176E-DA73-4861-95EE-5B992A3F8151</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>82E9176E-DA73-4861-95EE-5B992A3F8151</string>
+			<key>IDESourceControlWCCName</key>
+			<string>asignment1</string>
+		</dict>
+	</array>
+</dict>
+</plist>

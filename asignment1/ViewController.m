@@ -24,6 +24,7 @@
     UISwipeGestureRecognizer *recognizer;
     UISwipeGestureRecognizer *recognizer2;
     UITextField *stockListName;
+    NSMutableData *message;
 }
 
 @synthesize table;
@@ -32,6 +33,10 @@
 @synthesize csvArr;
 @synthesize nameArr;
 @synthesize stockListNO;
+
+@synthesize outputStream;
+@synthesize inputStream;
+@synthesize data;
 
 - (void)viewDidLoad
 {
@@ -130,6 +135,11 @@
     count++;
 }
 
+-(void)viewDidDisappear:(BOOL)animated{
+    [outputStream close];
+    [inputStream close];
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -155,7 +165,7 @@
     [table  reloadData];
 }
 
-#pragma mark - table
+#pragma mark - UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
@@ -186,20 +196,20 @@
         return cell;
     }
     
-    NSArray *data = [csvArr objectAtIndex:indexPath.row] ;
+    NSArray *arr = [csvArr objectAtIndex:indexPath.row] ;
     
     
-    if (data.count < 5) {
+    if (arr.count < 5) {
         return cell;
     }
     
-    NSString *ticker = [[data objectAtIndex:0]substringFromIndex:1];
+    NSString *ticker = [[arr objectAtIndex:0]substringFromIndex:1];
     
-    NSString *name = [[data objectAtIndex:1]substringFromIndex:1];
+    NSString *name = [[arr objectAtIndex:1]substringFromIndex:1];
     
     cell.textLabel.text = [NSString stringWithFormat:@"%@  %@",[ticker substringToIndex:ticker.length-1],[name substringToIndex:name.length-1]];
     
-    NSString *change = [[data objectAtIndex:4]substringFromIndex:1];
+    NSString *change = [[arr objectAtIndex:4]substringFromIndex:1];
     change = [change substringToIndex:change.length-2];
     if ([change floatValue]<0) {
         cell.backgroundColor = [UIColor redColor];
@@ -208,19 +218,11 @@
     }else{
         cell.backgroundColor = [UIColor grayColor];
     }
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"%@\t%@\t%@%%\t%@",[data objectAtIndex:2],[data objectAtIndex:3],change,[data objectAtIndex:5]];
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"%@\t%@\t%@%%\t%@",[arr objectAtIndex:2],[arr objectAtIndex:3],change,[arr objectAtIndex:5]];
     cell.detailTextLabel.textColor = [UIColor darkTextColor];
     
     return cell;
 }
-
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    DetailViewController *d = [[DetailViewController alloc]init];
-    NSLog(@"nameArr : %@",nameArr);
-    d.stockName = [nameArr objectAtIndex:indexPath.row];
-    [self presentViewController:d animated:NO completion:nil];
-}
-
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == 0) // Don't move the first row
@@ -275,7 +277,15 @@
     }
 }
 
-#pragma mark - Gesture
+#pragma mark - UITableViewDelegate
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    DetailViewController *d = [[DetailViewController alloc]init];
+    NSLog(@"nameArr : %@",nameArr);
+    d.stockName = [nameArr objectAtIndex:indexPath.row];
+    [self presentViewController:d animated:NO completion:nil];
+}
+
+#pragma mark - UIGestureRecognizerDelegate
 -(void)handleSwipeFrom:(id)sender {
     int swipe = 0;// 1 = left 2 = right
     NSArray *csvInit = [[NSArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
@@ -316,7 +326,7 @@
 
 
 
-#pragma mark - CSV to NSArray
+#pragma yahoo
 -(void)retrieveData:(NSURL *)url{
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -352,6 +362,126 @@
         }
     });
 }
+
+#pragma mark - NSStreamDelegate
+- (void)sendMessage:(NSString *)string{
+    if ([inputStream streamStatus]==NSStreamStatusOpen) {
+        [inputStream close];
+        [outputStream close];
+    }
+    
+    [self initNetworkCommunication];
+    
+    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
+    NSLog(@"I said: %@\n" , s);
+	data = [[NSData alloc] initWithData:[s dataUsingEncoding:NSASCIIStringEncoding]];
+	[outputStream write:[data bytes] maxLength:[data length]];
+    
+}
+
+- (void) initNetworkCommunication {
+    
+	CFReadStreamRef readStream;
+	CFWriteStreamRef writeStream;
+	CFStreamCreatePairWithSocketToHost(NULL, (CFStringRef)@"localhost", 1337, &readStream, &writeStream);
+	
+	inputStream = (__bridge_transfer NSInputStream *)readStream;
+	outputStream = (__bridge_transfer NSOutputStream *)writeStream;
+	[outputStream setDelegate:self];
+	[inputStream setDelegate:self];
+	[inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+	[outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    
+    
+    //SSL
+    [inputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL
+                      forKey:NSStreamSocketSecurityLevelKey];
+    [outputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL
+                       forKey:NSStreamSocketSecurityLevelKey];
+    
+    NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
+                              [NSNumber numberWithBool:YES], kCFStreamSSLAllowsExpiredCertificates,
+                              [NSNumber numberWithBool:YES], kCFStreamSSLAllowsAnyRoot,
+                              [NSNumber numberWithBool:NO], kCFStreamSSLValidatesCertificateChain,
+                              kCFNull,kCFStreamSSLPeerName,
+                              nil];
+    
+    CFReadStreamSetProperty((CFReadStreamRef)inputStream, kCFStreamPropertySSLSettings, (CFTypeRef)settings);
+    CFWriteStreamSetProperty((CFWriteStreamRef)outputStream, kCFStreamPropertySSLSettings, (CFTypeRef)settings);
+    //
+	[inputStream open];
+	[outputStream open];
+    
+}
+-(void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode{
+    
+	//NSLog(@"stream event %i", eventCode);
+    
+    static int c = 0;
+    
+	switch (eventCode) {
+		case NSStreamEventHasBytesAvailable:
+            NSLog(@"RECEIVING");
+            
+			if (aStream == inputStream) {
+                
+                uint8_t buffer[5000];
+				int len;
+				
+				while ([inputStream hasBytesAvailable]) {
+					len = [inputStream read:buffer maxLength:sizeof(buffer)];
+					if (len > 0) {
+						
+						NSString *output = [[NSString alloc] initWithBytes:buffer length:len encoding:NSASCIIStringEncoding];
+                        NSData *d = [[NSData alloc]initWithBytes:buffer length:len];
+                        if (output != nil) {
+                            if (message == nil) {
+                                message = [NSMutableData new];
+                            }
+                            [message appendData:d];
+                        }
+					}
+				}
+                
+                NSArray *array;
+                if (message != nil) {
+                    @try {
+                        array = [NSKeyedUnarchiver unarchiveObjectWithData:message];
+                        
+                    }
+                    @catch (NSException *exception) {
+//                        NSLog(@"ERROR : %@",exception);
+                    }
+                    @finally{
+                        if (array == nil) {
+                            NSLog(@"string : %@",[[NSString alloc]initWithData:message encoding:NSASCIIStringEncoding]);
+                        }else{
+                            NSLog(@"array :%@",array);
+                        }
+                        message = nil;
+                    }
+                }
+			}
+			break;
+            
+        case NSStreamEventHasSpaceAvailable:
+            
+            //            NSLog(@"NSStreamEventHasSpaceAvailable");
+            if (aStream == outputStream) {
+                if (c == 0) {
+                    [self sendMessage:@"Hello\n"];
+                    c++;
+                }
+                
+            }
+            break;
+		default:
+			NSLog(@"Unknown event %@,%@",aStream,inputStream);
+            break;
+            
+	}
+}
+
 -(void)submitted{
     NSString *str = [NSString stringWithFormat:@"http://download.finance.yahoo.com/d/quotes.csv?s=%@&f=snl1c1p2v&e=.csv",txt.text];
     NSURL *url = [NSURL URLWithString:str];
@@ -406,16 +536,11 @@
     if (nameArr.count == 0 ) {
         return;
     }
-    UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
     
-    spinner.color = [UIColor blueColor];
     NSLog(@"start refresh");
     NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
     NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
     dispatch_async(dispatch_get_main_queue(), ^{
-        spinner.hidden=NO;
-        [spinner startAnimating];
-        [self.view addSubview:spinner];
         NSMutableString *str = [NSMutableString stringWithFormat:@"http://download.finance.yahoo.com/d/quotes.csv?s=%@",[nameArr objectAtIndex:0]];
         for (int i = 1 ; i<nameArr.count; i++) {
             [str appendString:[NSString stringWithFormat:@"+%@",[nameArr objectAtIndex:i]]];
@@ -459,12 +584,10 @@
         [[NSUserDefaults standardUserDefaults] setObject:nameInit forKey:@"nameArr"];
         [[NSUserDefaults standardUserDefaults] synchronize];
         
-        [spinner stopAnimating];
-        spinner.hidden=YES;
         NSLog(@"finish refresh");
     });
 }
-
+#pragma mark - UITextFieldDelegate
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     if (textField == txt) {
         [self submitted];
@@ -475,6 +598,8 @@
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     [txt resignFirstResponder];
 }
+
+
 - (void)rightReload
 {
     [table reloadData];

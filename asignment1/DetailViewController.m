@@ -198,7 +198,7 @@
         [charSet addCharactersInString:@","];
         [charSet addCharactersInString:@"\n"];
         data = [reply componentsSeparatedByCharactersInSet:charSet];
-        NSLog(@"*********************\ndata :%@",data);
+//        NSLog(@"*********************\ndata :%@",data);
         
         self.ArrayOfValues = [[NSMutableArray alloc] init];
         self.ArrayOfDates = [[NSMutableArray alloc] init];
@@ -211,7 +211,6 @@
             NSString *day = [[data objectAtIndex:i*7] substringWithRange:r];
             [self.ArrayOfDates insertObject:day atIndex:0];
             float value = [[data objectAtIndex:i*7+6] floatValue];
-            NSLog(@"value : %f",value);
             if (value>max) {
                 max = value;
             }

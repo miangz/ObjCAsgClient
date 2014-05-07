@@ -125,7 +125,6 @@
     [editBT setTitle:@"..." forState:UIControlStateNormal];
     [editBT addTarget:self action:@selector(editArr) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:editBT];
-    
 }
 
 -(void)viewDidAppear:(BOOL)animated{
@@ -465,15 +464,13 @@
 			break;
             
         case NSStreamEventHasSpaceAvailable:
-            
-            //            NSLog(@"NSStreamEventHasSpaceAvailable");
-            if (aStream == outputStream) {
-                if (c == 0) {
-                    [self sendMessage:@"Hello\n"];
-                    c++;
-                }
-                
-            }
+//            if (aStream == outputStream) {
+//                if (c == 0) {
+//                    [self sendMessage:@"Hello\n"];
+//                    c++;
+//                }
+//                
+//            }
             break;
 		default:
 			NSLog(@"Unknown event %@,%@",aStream,inputStream);
@@ -490,11 +487,6 @@
 }
 
 -(void)editArr{
-    //    EditViewController *e = [[EditViewController alloc]init];
-    //    e.stockListNO = stockListNO;
-    //    e.csvArr = [[NSMutableArray alloc]initWithArray:csvArr];
-    //    e.nameArr = [[NSMutableArray alloc]initWithArray:nameArr];
-    //    [self presentViewController:e animated:YES completion:nil];
     StocklistViewController *s = [[StocklistViewController alloc]init];
     [self presentViewController:s animated:NO completion:nil];
 }

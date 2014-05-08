@@ -8,6 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
-@interface SignUpViewController : UIViewController<UITextFieldDelegate,UIGestureRecognizerDelegate>
+@interface SignUpViewController : UIViewController<UITextFieldDelegate,UIGestureRecognizerDelegate,NSStreamDelegate>
 
+@property NSInputStream *inputStream;
+@property NSOutputStream *outputStream;
+@property (copy) NSData  *data ;
+
+- (void) sendMessage:(NSString *)string;
+
+-(void)retrieveData:(NSURL *)url;
 @end

@@ -21,7 +21,14 @@
     UITextField *username;
     UITextField *password;
     UITextField *rePassword;
+    
+    NSMutableData *message;
+    UIAlertView *loadingView;
 }
+
+@synthesize outputStream;
+@synthesize inputStream;
+@synthesize data;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -43,6 +50,18 @@
     [self.view addGestureRecognizer:yourTap];
     
     
+    UIButton *backBT = [[UIButton alloc]initWithFrame:CGRectMake(20, 25, 60, 20)];
+    [backBT setTitle:@"<Back" forState:UIControlStateNormal];
+    [backBT setTitle:@"<Back" forState:UIControlStateSelected];
+    [backBT setTitleColor:[UIColor whiteColor]forState:UIControlStateNormal];
+    [backBT setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
+    [backBT addTarget:self action:@selector(close) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:backBT];
+    
+    UIView *whiteLine = [[UIView alloc]initWithFrame:CGRectMake(10, 49, 300, 2)];
+    whiteLine.backgroundColor = [UIColor lightGrayColor];
+    [self.view addSubview:whiteLine];
+
     UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(30, 50, 256, 35)];
     label.text = @"Create an account";
     label.textColor = [UIColor whiteColor];
@@ -61,6 +80,7 @@
     [[fname layer] setBorderColor:[UIColor grayColor].CGColor];
     [[fname layer]setCornerRadius:4];
     fname.delegate = self;
+    fname.autocorrectionType = UITextAutocorrectionTypeNo;
     [self.view addSubview:fname];
     
     lname = [[UITextField alloc]initWithFrame:CGRectMake(30, 165, 200, 30)];
@@ -70,6 +90,7 @@
     [[lname layer] setBorderColor:[UIColor grayColor].CGColor];
     [[lname layer]setCornerRadius:4];
     lname.delegate = self;
+    lname.autocorrectionType = UITextAutocorrectionTypeNo;
     [self.view addSubview:lname];
     
     UILabel *label2 = [[UILabel alloc]initWithFrame:CGRectMake(30, 200, 256, 35)];
@@ -83,6 +104,7 @@
     [[username layer] setBorderColor:[UIColor grayColor].CGColor];
     [[username layer]setCornerRadius:4];
     username.delegate = self;
+    username.autocorrectionType = UITextAutocorrectionTypeNo;
     [self.view addSubview:username];
     
     UILabel *label3 = [[UILabel alloc]initWithFrame:CGRectMake(30, 265, 256, 35)];
@@ -97,6 +119,7 @@
     [[password layer] setBorderColor:[UIColor grayColor].CGColor];
     [[password layer]setCornerRadius:4];
     password.delegate = self;
+    password.autocorrectionType = UITextAutocorrectionTypeNo;
     [self.view addSubview:password];
     
     UILabel *label4 = [[UILabel alloc]initWithFrame:CGRectMake(30, 320, 256, 35)];
@@ -111,6 +134,7 @@
     [[rePassword layer] setBorderColor:[UIColor grayColor].CGColor];
     [[rePassword layer]setCornerRadius:4];
     rePassword.delegate = self;
+    rePassword.autocorrectionType = UITextAutocorrectionTypeNo;
     [self.view addSubview:rePassword];
     
     UIButton *createBT = [[UIButton alloc]initWithFrame:CGRectMake(30, 400, 150, 30)];
@@ -121,7 +145,6 @@
     [createBT addTarget:self action:@selector(createAccount) forControlEvents:UIControlEventTouchUpInside];
     
     [self.view addSubview:createBT];
-    
 }
 
 - (void)didReceiveMemoryWarning
@@ -132,6 +155,155 @@
 
 -(void)createAccount{
     
+    if (fname.text.length < 1 || lname.text.length < 1 || username.text.length < 1 ) {
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"ERROR!!!" message:@"Please enter all of informations." delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+        [alert show];
+        return;
+    }
+    
+    if (password.text.length < 3) {
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"ERROR!!!" message:@"Passwords must have at least 4 characters" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+        [alert show];
+        return;
+    }
+    
+    if (![password.text isEqualToString:rePassword.text]) {
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"ERROR!!!" message:@"The passwords don't match." delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+        [alert show];
+        return;
+    }
+    NSString *msg = [NSString stringWithFormat:@"createAnAccount:%@\t%@\t%@\t%@",fname.text,lname.text,username.text,password.text];
+    [self sendMessage:msg];
+}
+
+
+#pragma mark - NSStreamDelegate
+- (void)sendMessage:(NSString *)string{
+    loadingView = [[UIAlertView alloc] initWithTitle:@"Creating an account\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
+    [loadingView show];
+    UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    indicator.center = CGPointMake(loadingView.bounds.size.width / 2, loadingView.bounds.size.height - 50);
+    [indicator startAnimating];
+    [loadingView addSubview:indicator];
+    
+    
+    if ([inputStream streamStatus]==NSStreamStatusOpen) {
+        [inputStream close];
+        [outputStream close];
+    }
+    
+    [self initNetworkCommunication];
+    
+    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
+    NSLog(@"I said: %@\n" , s);
+	data = [[NSData alloc] initWithData:[s dataUsingEncoding:NSASCIIStringEncoding]];
+	[outputStream write:[data bytes] maxLength:[data length]];
+    
+}
+
+- (void) initNetworkCommunication {
+    
+	CFReadStreamRef readStream;
+	CFWriteStreamRef writeStream;
+	CFStreamCreatePairWithSocketToHost(NULL, (CFStringRef)@"localhost", 1337, &readStream, &writeStream);
+	
+	inputStream = (__bridge_transfer NSInputStream *)readStream;
+	outputStream = (__bridge_transfer NSOutputStream *)writeStream;
+	[outputStream setDelegate:self];
+	[inputStream setDelegate:self];
+	[inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+	[outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    
+    
+    //SSL
+    [inputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL
+                      forKey:NSStreamSocketSecurityLevelKey];
+    [outputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL
+                       forKey:NSStreamSocketSecurityLevelKey];
+    
+    NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
+                              [NSNumber numberWithBool:YES], kCFStreamSSLAllowsExpiredCertificates,
+                              [NSNumber numberWithBool:YES], kCFStreamSSLAllowsAnyRoot,
+                              [NSNumber numberWithBool:NO], kCFStreamSSLValidatesCertificateChain,
+                              kCFNull,kCFStreamSSLPeerName,
+                              nil];
+    
+    CFReadStreamSetProperty((CFReadStreamRef)inputStream, kCFStreamPropertySSLSettings, (CFTypeRef)settings);
+    CFWriteStreamSetProperty((CFWriteStreamRef)outputStream, kCFStreamPropertySSLSettings, (CFTypeRef)settings);
+    //
+	[inputStream open];
+	[outputStream open];
+    
+}
+-(void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode{
+    
+	//NSLog(@"stream event %i", eventCode);
+    
+    static int c = 0;
+    
+	switch (eventCode) {
+		case NSStreamEventHasBytesAvailable:
+            NSLog(@"RECEIVING");
+            
+			if (aStream == inputStream) {
+                
+                uint8_t buffer[5000];
+				int len;
+				
+				while ([inputStream hasBytesAvailable]) {
+					len = [inputStream read:buffer maxLength:sizeof(buffer)];
+					if (len > 0) {
+						
+						NSString *output = [[NSString alloc] initWithBytes:buffer length:len encoding:NSASCIIStringEncoding];
+                        NSData *d = [[NSData alloc]initWithBytes:buffer length:len];
+                        if (output != nil) {
+                            if (message == nil) {
+                                message = [NSMutableData new];
+                            }
+                            [message appendData:d];
+                        }
+					}
+				}
+                
+                if (message != nil) {
+                    
+                    [loadingView dismissWithClickedButtonIndex:0 animated:YES];
+                    NSString *str = [[NSString alloc]initWithData:message encoding:NSASCIIStringEncoding];
+                    NSLog(@"string : %@",str);
+                    NSRange rng = [str rangeOfString:@"Added successfully." options:0];
+                    if (rng.length > 0) {
+                        [self close];
+                    }else{
+                        NSRange rng = [str rangeOfString:@"Someone already has that username. Try another!" options:0];
+                        if (rng.length > 0) {
+                            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"ERROR!!" message:@"Someone already has that username. Try another!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+                            [alert show];
+                        }
+                    }
+                    message = nil;
+                    
+                }
+			}
+			break;
+            
+        case NSStreamEventHasSpaceAvailable:
+            break;
+		default:
+			NSLog(@"Unknown event %@,%@",aStream,inputStream);
+            break;
+            
+	}
+}
+
+-(void) close {
+    if([NSThread isMainThread]) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+    else {
+        [self performSelectorOnMainThread:@selector(close)
+                               withObject:nil
+                            waitUntilDone:YES];
+    }
 }
 
 //handle kb

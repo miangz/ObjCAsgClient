@@ -45,6 +45,7 @@
     count = 0;
     editMode = NO;
     
+    self.view.backgroundColor = [UIColor whiteColor];
     
     NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
     NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];

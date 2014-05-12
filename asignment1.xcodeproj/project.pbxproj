@@ -11,6 +11,8 @@
 		EB11A62C18F4EF2E00B9E6D6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB11A62A18F4EF2E00B9E6D6 /* InfoPlist.strings */; };
 		EB11A62E18F4EF2E00B9E6D6 /* table_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = EB11A62D18F4EF2E00B9E6D6 /* table_Tests.m */; };
 		EB11A63718F6625E00B9E6D6 /* EditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB11A63618F6625E00B9E6D6 /* EditViewController.m */; };
+		EB15E8BA1920D4800071A5C1 /* NetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EB15E8B71920D4800071A5C1 /* NetworkManager.m */; };
+		EB15E8BB1920D4800071A5C1 /* QNetworkAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = EB15E8B91920D4800071A5C1 /* QNetworkAdditions.m */; };
 		EB1A7F2A18FE9C4500EAAB04 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1A7F2918FE9C4500EAAB04 /* DetailViewController.m */; };
 		EB22FCEE1919DEEA00EFD344 /* checked.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB22FCED1919DEEA00EFD344 /* checked.jpg */; };
 		EB22FCF01919DEF800EFD344 /* unchecked.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB22FCEF1919DEF800EFD344 /* unchecked.jpg */; };
@@ -80,6 +82,10 @@
 		EB11A62F18F4EF2E00B9E6D6 /* table Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "table Tests-Prefix.pch"; sourceTree = "<group>"; };
 		EB11A63518F6625E00B9E6D6 /* EditViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditViewController.h; sourceTree = "<group>"; };
 		EB11A63618F6625E00B9E6D6 /* EditViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditViewController.m; sourceTree = "<group>"; };
+		EB15E8B61920D4800071A5C1 /* NetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkManager.h; sourceTree = "<group>"; };
+		EB15E8B71920D4800071A5C1 /* NetworkManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkManager.m; sourceTree = "<group>"; };
+		EB15E8B81920D4800071A5C1 /* QNetworkAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QNetworkAdditions.h; sourceTree = "<group>"; };
+		EB15E8B91920D4800071A5C1 /* QNetworkAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QNetworkAdditions.m; sourceTree = "<group>"; };
 		EB1A7F2818FE9C4500EAAB04 /* DetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailViewController.h; sourceTree = "<group>"; };
 		EB1A7F2918FE9C4500EAAB04 /* DetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailViewController.m; sourceTree = "<group>"; };
 		EB22FCED1919DEEA00EFD344 /* checked.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = checked.jpg; sourceTree = "<group>"; };
@@ -178,6 +184,17 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		EB15E8BE1920D4840071A5C1 /* StreamsSet */ = {
+			isa = PBXGroup;
+			children = (
+				EB15E8B61920D4800071A5C1 /* NetworkManager.h */,
+				EB15E8B71920D4800071A5C1 /* NetworkManager.m */,
+				EB15E8B91920D4800071A5C1 /* QNetworkAdditions.m */,
+				EB15E8B81920D4800071A5C1 /* QNetworkAdditions.h */,
+			);
+			name = StreamsSet;
+			sourceTree = "<group>";
+		};
 		EB7FA38718F4125000B08F3C = {
 			isa = PBXGroup;
 			children = (
@@ -242,6 +259,7 @@
 		EB7FA39A18F4125000B08F3C /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				EB15E8BE1920D4840071A5C1 /* StreamsSet */,
 				EB11A63518F6625E00B9E6D6 /* EditViewController.h */,
 				EB11A63618F6625E00B9E6D6 /* EditViewController.m */,
 				EB7FA39B18F4125000B08F3C /* asignment1-Info.plist */,
@@ -454,9 +472,11 @@
 				EB7FA3CC18F4126100B08F3C /* ViewController.m in Sources */,
 				EBF711B7190631DD00C2DAA3 /* BEMAnimations.m in Sources */,
 				EB3B8A0D18FE3309005930B0 /* StocklistViewController.m in Sources */,
+				EB15E8BB1920D4800071A5C1 /* QNetworkAdditions.m in Sources */,
 				EB7FA3CD18F4126100B08F3C /* ProfilerClk.m in Sources */,
 				EB7FA3A418F4125000B08F3C /* AppDelegate.m in Sources */,
 				EB7FA3A018F4125000B08F3C /* main.m in Sources */,
+				EB15E8BA1920D4800071A5C1 /* NetworkManager.m in Sources */,
 				EB4B65851918FF50003C058A /* LogInViewController.m in Sources */,
 				EB11A63718F6625E00B9E6D6 /* EditViewController.m in Sources */,
 				EB1A7F2A18FE9C4500EAAB04 /* DetailViewController.m in Sources */,

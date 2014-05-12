@@ -10,8 +10,15 @@
 
 @interface LogInViewController : UIViewController<UITextFieldDelegate,UIGestureRecognizerDelegate,NSStreamDelegate>
 
-@property NSInputStream *inputStream;
-@property NSOutputStream *outputStream;
+
+
+@property (nonatomic, assign, readonly ) BOOL               isSending;
+@property (nonatomic, strong, readwrite) NSOutputStream *   networkStream;
+@property (nonatomic, strong, readwrite) NSInputStream *    fileStream;
+@property (nonatomic, assign, readonly ) uint8_t *          buffer;
+@property (nonatomic, assign, readwrite) size_t             bufferOffset;
+@property (nonatomic, assign, readwrite) size_t             bufferLimit;
+
 @property (copy) NSData  *data ;
 
 - (void) sendMessage:(NSString *)string;

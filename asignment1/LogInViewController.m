@@ -11,6 +11,9 @@
 #import "SignUpViewController.h"
 #import "ViewController.h"
 
+#import "NetworkManager.h"
+#import "QNetworkAdditions.h"
+
 #define kOFFSET_FOR_KEYBOARD 80.0
 
 @interface LogInViewController ()
@@ -28,8 +31,10 @@
     UIAlertView *loadingView;
 }
 
-@synthesize outputStream;
-@synthesize inputStream;
+@synthesize networkStream = _networkStream;
+@synthesize fileStream    = _fileStream;
+@synthesize bufferOffset  = _bufferOffset;
+@synthesize bufferLimit   = _bufferLimit;
 @synthesize data;
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -165,9 +170,9 @@
     [loadingView addSubview:indicator];
     
     
-    if ([inputStream streamStatus]==NSStreamStatusOpen) {
-        [inputStream close];
-        [outputStream close];
+    if ([self.fileStream streamStatus]==NSStreamStatusOpen) {
+        [self.fileStream close];
+        [self.networkStream close];
     }
     
     [self initNetworkCommunication];
@@ -175,42 +180,31 @@
     NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
     NSLog(@"I said: %@\n" , s);
 	data = [[NSData alloc] initWithData:[s dataUsingEncoding:NSASCIIStringEncoding]];
-	[outputStream write:[data bytes] maxLength:[data length]];
+	[self.networkStream write:[data bytes] maxLength:[data length]];
     
 }
 
 - (void) initNetworkCommunication {
+    NSOutputStream *    output;
+    BOOL                success;
+    NSNetService *      netService;
     
-	CFReadStreamRef readStream;
-	CFWriteStreamRef writeStream;
-	CFStreamCreatePairWithSocketToHost(NULL, (CFStringRef)@"localhost", 1337, &readStream, &writeStream);
-	
-	inputStream = (__bridge_transfer NSInputStream *)readStream;
-	outputStream = (__bridge_transfer NSOutputStream *)writeStream;
-	[outputStream setDelegate:self];
-	[inputStream setDelegate:self];
-	[inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-	[outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    netService = [[NSNetService alloc] initWithDomain:@"local." type:@"_x-SNSUpload._tcp." name:@"Test"];
+    assert(netService != nil);
     
     
-    //SSL
-    [inputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL
-                      forKey:NSStreamSocketSecurityLevelKey];
-    [outputStream setProperty:NSStreamSocketSecurityLevelNegotiatedSSL
-                       forKey:NSStreamSocketSecurityLevelKey];
+    success = [netService qNetworkAdditions_getInputStream:NULL outputStream:&output];
+    assert(success);
     
-    NSDictionary *settings = [[NSDictionary alloc] initWithObjectsAndKeys:
-                              [NSNumber numberWithBool:YES], kCFStreamSSLAllowsExpiredCertificates,
-                              [NSNumber numberWithBool:YES], kCFStreamSSLAllowsAnyRoot,
-                              [NSNumber numberWithBool:NO], kCFStreamSSLValidatesCertificateChain,
-                              kCFNull,kCFStreamSSLPeerName,
-                              nil];
+    self.networkStream = output;
+    self.networkStream.delegate = self;
+    [self.networkStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     
-    CFReadStreamSetProperty((CFReadStreamRef)inputStream, kCFStreamPropertySSLSettings, (CFTypeRef)settings);
-    CFWriteStreamSetProperty((CFWriteStreamRef)outputStream, kCFStreamPropertySSLSettings, (CFTypeRef)settings);
-    //
-	[inputStream open];
-	[outputStream open];
+    [self.networkStream open];
+    
+    // Tell the UI we're sending.
+    
+    [self sendDidStart];
     
 }
 -(void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode{
@@ -223,13 +217,13 @@
 		case NSStreamEventHasBytesAvailable:
             NSLog(@"RECEIVING");
             
-			if (aStream == inputStream) {
+			if (aStream == self.fileStream) {
                 
                 uint8_t buffer[5000];
 				int len;
 				
-				while ([inputStream hasBytesAvailable]) {
-					len = [inputStream read:buffer maxLength:sizeof(buffer)];
+				while ([self.fileStream hasBytesAvailable]) {
+					len = [self.fileStream read:buffer maxLength:sizeof(buffer)];
 					if (len > 0) {
 						
 						NSString *output = [[NSString alloc] initWithBytes:buffer length:len encoding:NSASCIIStringEncoding];
@@ -270,10 +264,53 @@
         case NSStreamEventHasSpaceAvailable:
             break;
 		default:
-			NSLog(@"Unknown event %@,%@",aStream,inputStream);
+			NSLog(@"Unknown event %@,%@",aStream,self.fileStream);
             break;
             
 	}
+}
+
+#pragma mark * Status management
+
+// These methods are used by the core transfer code to update the UI.
+
+- (void)sendDidStart
+{
+    [[NetworkManager sharedInstance] didStartNetworkOperation];
+    
+    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",@"Whattt"];
+    NSData *data = [[NSData alloc] initWithData:[s dataUsingEncoding:NSASCIIStringEncoding]];
+    [self.networkStream write:[data bytes] maxLength:[data length]];
+}
+
+- (void)updateStatus:(NSString *)statusString
+{
+    assert(statusString != nil);
+}
+
+- (void)sendDidStopWithStatus:(NSString *)statusString
+{
+    if (statusString == nil) {
+        statusString = @"Send succeeded";
+    }
+    [[NetworkManager sharedInstance] didStopNetworkOperation];
+}
+
+- (void)stopSendWithStatus:(NSString *)statusString
+{
+    if (self.networkStream != nil) {
+        self.networkStream.delegate = nil;
+        [self.networkStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+        [self.networkStream close];
+        self.networkStream = nil;
+    }
+    if (self.fileStream != nil) {
+        [self.fileStream close];
+        self.fileStream = nil;
+    }
+    self.bufferOffset = 0;
+    self.bufferLimit  = 0;
+    [self sendDidStopWithStatus:statusString];
 }
 
 

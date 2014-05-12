@@ -252,6 +252,7 @@
                     if (rng.length > 0) {
                         NSLog(@"Signed in successfully.");
                         ViewController *view = [[ViewController alloc]init];
+                        view.uid = username.text;
                         [self presentViewController:view animated:YES completion:nil];
                     }else{
                         NSRange rng = [str rangeOfString:@"Username or password is not correct.\n" options:0];

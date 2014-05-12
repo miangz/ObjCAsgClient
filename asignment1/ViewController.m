@@ -26,7 +26,7 @@
     UITextField *stockListName;
     NSMutableData *message;
 }
-
+@synthesize uid;
 @synthesize table;
 @synthesize txt;
 @synthesize csv;
@@ -128,6 +128,8 @@
     [self.view addSubview:editBT];
 }
 
+
+
 -(void)viewDidAppear:(BOOL)animated{
     if (count>0) {
         [self loadNewStockList];
@@ -211,9 +213,9 @@
     
     NSString *change = [[arr objectAtIndex:4]substringFromIndex:1];
     change = [change substringToIndex:change.length-2];
-    if ([change floatValue]<0) {
+    if ([[arr objectAtIndex:3] floatValue]<0) {
         cell.backgroundColor = [UIColor redColor];
-    }else if([change floatValue]>0) {
+    }else if([[arr objectAtIndex:3] floatValue]>0) {
         cell.backgroundColor = [UIColor colorWithRed:0.1 green:0.8 blue:0.6 alpha:1];//[UIColor cyanColor];
     }else{
         cell.backgroundColor = [UIColor grayColor];
@@ -324,9 +326,117 @@
     }
 }
 
+-(void)submitted{
+    NSLog(@"nameArr : %@",nameArr);
+//    NSMutableString *name = [[NSMutableString alloc]initWithString:@"modifyStock:"];
+//    [name appendString:uid];
+//    [name appendString:@":"];
+    NSString *name = [NSString stringWithFormat:@"modifyStock:%@:%@:%d",uid,txt.text,stockListNO];
+//    NSLog(@"name bf for");
+//    for (int j = 0 ; j<[nameArr count]; j++) {
+//        if (j>0) [name appendString:@"+"];
+//        [name appendString:[nameArr objectAtIndex:j]];
+//    }
+//    [name appendString:@"+"];
+//    [name appendString:txt.text];
+    NSLog(@"name: %@",name);
+    [self sendMessage:name];
+}
 
+-(void)editArr{
+    StocklistViewController *s = [[StocklistViewController alloc]init];
+    [self presentViewController:s animated:NO completion:nil];
+}
+
+-(void)reorder{
+    if (editMode == YES) {
+        editMode = NO;
+        table.editing = NO;
+        doneBT.hidden = YES;
+        reorderBT.hidden = NO;
+    }else{
+        editMode = YES;
+        table.editing = YES;
+        doneBT.hidden = NO;
+        reorderBT.hidden = YES;
+    }
+}
+
+-(void)addList{
+    NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
+    NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
+    csvArr = nil;
+    nameArr = nil;
+    
+    csvArr = [[NSMutableArray alloc]init];
+    nameArr = [[NSMutableArray alloc]init];
+    [csvInit addObject:csvArr];
+    [nameInit addObject:nameArr];
+    
+    stockListNO = csvInit.count-1;
+    [[NSUserDefaults standardUserDefaults] setObject:csvInit forKey:@"csvArr"];
+    [[NSUserDefaults standardUserDefaults] setObject:nameInit forKey:@"nameArr"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    [table reloadData];
+    stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
+}
 
 #pragma yahoo
+-(void)refreshData{
+    if (nameArr.count == 0 ) {
+        return;
+    }
+    
+    NSLog(@"start refresh");
+    NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
+    NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSMutableString *str = [NSMutableString stringWithFormat:@"http://download.finance.yahoo.com/d/quotes.csv?s=%@",[nameArr objectAtIndex:0]];
+        for (int i = 1 ; i<nameArr.count; i++) {
+            [str appendString:[NSString stringWithFormat:@"+%@",[nameArr objectAtIndex:i]]];
+        }
+        
+        [str appendString:@"&f=snl1c1p2v&e=.csv"];
+        
+        nameArr = nil;
+        csvArr = nil;
+        nameArr = [[NSMutableArray alloc]init];
+        
+        NSURL *url = [NSURL URLWithString:str];
+        NSString *reply = [NSString stringWithContentsOfURL:url encoding:NSASCIIStringEncoding error:nil];
+        
+        NSArray *reply2 = [reply componentsSeparatedByString:@"\n"];
+        
+        NSMutableArray *array = [[NSMutableArray alloc]init];
+        for (int i = 0 ; i<reply2.count; i++) {
+            NSArray *a = [[reply2 objectAtIndex:i] componentsSeparatedByString:@","];
+            if (a.count>2) {
+                [array addObject:a];
+                NSString *name = [[a objectAtIndex:0]substringFromIndex:1];
+                name = [name substringToIndex:name.length-1];
+                [nameArr addObject:name];
+            }
+        }
+        
+        
+        csvArr = [[NSMutableArray alloc]initWithArray:array];
+        
+        txt.text = @"";
+        if (csvInit.count==0) {
+            [csvInit addObject:csvArr];
+            [nameInit addObject:nameArr];
+        }else{
+            [csvInit replaceObjectAtIndex:stockListNO withObject:csvArr];
+            [nameInit replaceObjectAtIndex:stockListNO withObject:nameArr];
+        }
+        [table reloadData];
+        [[NSUserDefaults standardUserDefaults] setObject:csvInit forKey:@"csvArr"];
+        [[NSUserDefaults standardUserDefaults] setObject:nameInit forKey:@"nameArr"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        
+        NSLog(@"finish refresh");
+    });
+}
 -(void)retrieveData:(NSURL *)url{
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -417,7 +527,7 @@
     
 	//NSLog(@"stream event %i", eventCode);
     
-    static int c = 0;
+//    static int c = 0;
     
 	switch (eventCode) {
 		case NSStreamEventHasBytesAvailable:
@@ -450,12 +560,29 @@
                         
                     }
                     @catch (NSException *exception) {
-//                        NSLog(@"ERROR : %@",exception);
+                        //                        NSLog(@"ERROR : %@",exception);
                     }
                     @finally{
                         if (array == nil) {
                             NSLog(@"string : %@",[[NSString alloc]initWithData:message encoding:NSASCIIStringEncoding]);
                         }else{
+                            [nameArr insertObject:txt.text atIndex:0];
+                            [csvArr insertObject:array atIndex:0];
+                            [table reloadData];
+                            
+                            NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
+                            NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
+                            if (csvInit.count==0) {
+                                [csvInit addObject:csvArr];
+                                [nameInit addObject:nameArr];
+                            }else{
+                                [csvInit replaceObjectAtIndex:stockListNO withObject:csvArr];
+                                [nameInit replaceObjectAtIndex:stockListNO withObject:nameArr];
+                            }
+                            [[NSUserDefaults standardUserDefaults] setObject:csvInit forKey:@"csvArr"];
+                            [[NSUserDefaults standardUserDefaults] setObject:nameInit forKey:@"nameArr"];
+                            [[NSUserDefaults standardUserDefaults] synchronize];
+
                             NSLog(@"array :%@",array);
                         }
                         message = nil;
@@ -465,121 +592,22 @@
 			break;
             
         case NSStreamEventHasSpaceAvailable:
-//            if (aStream == outputStream) {
-//                if (c == 0) {
-//                    [self sendMessage:@"Hello\n"];
-//                    c++;
-//                }
-//                
-//            }
+            //            if (aStream == outputStream) {
+            //                if (c == 0) {
+            //                    [self sendMessage:@"Hello\n"];
+            //                    c++;
+            //                }
+            //
+            //            }
             break;
 		default:
-			NSLog(@"Unknown event %@,%@",aStream,inputStream);
+//			NSLog(@"Unknown event %@,%@",aStream,inputStream);
             break;
             
 	}
 }
 
--(void)submitted{
-    NSString *str = [NSString stringWithFormat:@"http://download.finance.yahoo.com/d/quotes.csv?s=%@&f=snl1c1p2v&e=.csv",txt.text];
-    NSURL *url = [NSURL URLWithString:str];
-    
-    [self retrieveData:url];
-}
 
--(void)editArr{
-    StocklistViewController *s = [[StocklistViewController alloc]init];
-    [self presentViewController:s animated:NO completion:nil];
-}
-
--(void)reorder{
-    if (editMode == YES) {
-        editMode = NO;
-        table.editing = NO;
-        doneBT.hidden = YES;
-        reorderBT.hidden = NO;
-    }else{
-        editMode = YES;
-        table.editing = YES;
-        doneBT.hidden = NO;
-        reorderBT.hidden = YES;
-    }
-}
-
--(void)addList{
-    NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
-    NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
-    csvArr = nil;
-    nameArr = nil;
-    
-    csvArr = [[NSMutableArray alloc]init];
-    nameArr = [[NSMutableArray alloc]init];
-    [csvInit addObject:csvArr];
-    [nameInit addObject:nameArr];
-    
-    stockListNO = csvInit.count-1;
-    [[NSUserDefaults standardUserDefaults] setObject:csvInit forKey:@"csvArr"];
-    [[NSUserDefaults standardUserDefaults] setObject:nameInit forKey:@"nameArr"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-    [table reloadData];
-    stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
-}
-
--(void)refreshData{
-    if (nameArr.count == 0 ) {
-        return;
-    }
-    
-    NSLog(@"start refresh");
-    NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
-    NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSMutableString *str = [NSMutableString stringWithFormat:@"http://download.finance.yahoo.com/d/quotes.csv?s=%@",[nameArr objectAtIndex:0]];
-        for (int i = 1 ; i<nameArr.count; i++) {
-            [str appendString:[NSString stringWithFormat:@"+%@",[nameArr objectAtIndex:i]]];
-        }
-        
-        [str appendString:@"&f=snl1c1p2v&e=.csv"];
-        
-        nameArr = nil;
-        csvArr = nil;
-        nameArr = [[NSMutableArray alloc]init];
-        
-        NSURL *url = [NSURL URLWithString:str];
-        NSString *reply = [NSString stringWithContentsOfURL:url encoding:NSASCIIStringEncoding error:nil];
-        
-        NSArray *reply2 = [reply componentsSeparatedByString:@"\n"];
-        
-        NSMutableArray *array = [[NSMutableArray alloc]init];
-        for (int i = 0 ; i<reply2.count; i++) {
-            NSArray *a = [[reply2 objectAtIndex:i] componentsSeparatedByString:@","];
-            if (a.count>2) {
-                [array addObject:a];
-                NSString *name = [[a objectAtIndex:0]substringFromIndex:1];
-                name = [name substringToIndex:name.length-1];
-                [nameArr addObject:name];
-            }
-        }
-        
-        
-        csvArr = [[NSMutableArray alloc]initWithArray:array];
-        
-        txt.text = @"";
-        if (csvInit.count==0) {
-            [csvInit addObject:csvArr];
-            [nameInit addObject:nameArr];
-        }else{
-            [csvInit replaceObjectAtIndex:stockListNO withObject:csvArr];
-            [nameInit replaceObjectAtIndex:stockListNO withObject:nameArr];
-        }
-        [table reloadData];
-        [[NSUserDefaults standardUserDefaults] setObject:csvInit forKey:@"csvArr"];
-        [[NSUserDefaults standardUserDefaults] setObject:nameInit forKey:@"nameArr"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        
-        NSLog(@"finish refresh");
-    });
-}
 #pragma mark - UITextFieldDelegate
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     if (textField == txt) {

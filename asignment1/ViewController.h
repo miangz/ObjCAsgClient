@@ -11,7 +11,7 @@
 @interface ViewController : UIViewController<UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,UIGestureRecognizerDelegate,NSStreamDelegate>
 
 
-
+@property NSString *uid;
 @property NSArray *csv;
 @property UITableView *table;
 @property UITextField *txt;

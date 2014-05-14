@@ -142,9 +142,13 @@
     [signUpBT addTarget:self action:@selector(signUp) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:signUpBT];
     
+}
+-(void)viewDidAppear:(BOOL)animated{
     [self startServer];
 }
-
+-(void)viewDidDisappear:(BOOL)animated{
+    [self stopServer:nil];
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -169,6 +173,47 @@
     [self presentViewController:sView animated:YES completion:nil];
 }
 
+#pragma mark - handle keyboard
+- (void)scrollTap:(UIGestureRecognizer*)gestureRecognizer {
+    
+    [username resignFirstResponder];
+    [password resignFirstResponder];
+    if (self.view.frame.origin.y < 0)
+        [self setViewMovedUp:NO];
+}
+//method to move the view up/down whenever the keyboard is shown/dismissed
+-(void)setViewMovedUp:(BOOL)movedUp
+{
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:0.3]; // if you want to slide up the view
+    
+    CGRect rect = self.view.frame;
+    if (movedUp)
+    {
+        rect.origin.y -= kOFFSET_FOR_KEYBOARD;
+        rect.size.height += kOFFSET_FOR_KEYBOARD;
+    }
+    else
+    {
+        rect.origin.y += kOFFSET_FOR_KEYBOARD;
+        rect.size.height -= kOFFSET_FOR_KEYBOARD;
+    }
+    self.view.frame = rect;
+    
+    [UIView commitAnimations];
+}
+
+//handle kb
+-(void)textFieldDidBeginEditing:(UITextField *)sender
+{
+    
+    //move the main view, so that the keyboard does not hide it.
+    if  (self.view.frame.origin.y >= 0)
+    {
+        [self setViewMovedUp:YES];
+        return;
+    }
+}
 
 #pragma mark - NSStreamDelegate
 - (void)sendMessage:(NSString *)string{
@@ -187,7 +232,7 @@
     [self initNetworkCommunication];
     
 //    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
-    NSLog(@"I said: %@\n" , string);
+    NSLog(@"I said: %@" , string);
 	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
     
@@ -232,11 +277,9 @@
 				
 				while ([self.fileStream hasBytesAvailable]) {
 					len = [self.fileStream read:buffer maxLength:sizeof(buffer)];
-                    NSLog(@"len : %d",len);
 					if (len > 0) {
 						
 						NSString *output = [[NSString alloc] initWithBytes:buffer length:len encoding:NSASCIIStringEncoding];
-                        NSLog(@"output : %@",output);
                         NSData *d = [[NSData alloc]initWithBytes:buffer length:len];
                         if (output != nil) {
                             if (message == nil) {
@@ -390,17 +433,7 @@
 }
 
 
-//handle kb
--(void)textFieldDidBeginEditing:(UITextField *)sender
-{
-    
-    //move the main view, so that the keyboard does not hide it.
-    if  (self.view.frame.origin.y >= 0)
-    {
-        [self setViewMovedUp:YES];
-        return;
-    }
-}- (BOOL)isStarted
+- (BOOL)isStarted
 {
     return (self.netService != nil);
 }
@@ -409,50 +442,22 @@
 {
     return (self.fileStream != nil);
 }
-- (void)scrollTap:(UIGestureRecognizer*)gestureRecognizer {
-    
-    [username resignFirstResponder];
-    [password resignFirstResponder];
-    if (self.view.frame.origin.y < 0)
-        [self setViewMovedUp:NO];
-}
-//method to move the view up/down whenever the keyboard is shown/dismissed
--(void)setViewMovedUp:(BOOL)movedUp
-{
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.3]; // if you want to slide up the view
-    
-    CGRect rect = self.view.frame;
-    if (movedUp)
-    {
-        rect.origin.y -= kOFFSET_FOR_KEYBOARD;
-        rect.size.height += kOFFSET_FOR_KEYBOARD;
-    }
-    else
-    {
-        rect.origin.y += kOFFSET_FOR_KEYBOARD;
-        rect.size.height -= kOFFSET_FOR_KEYBOARD;
-    }
-    self.view.frame = rect;
-    
-    [UIView commitAnimations];
-}
-
-
 - (void)acceptConnection:(int)fd
 {
-    int     junk;
+//    int     junk;
+//    
+//    // If we already have a connection, reject this new one.  This is one of the
+//    // big simplifying assumptions in this code.  A real server should handle
+//    // multiple simultaneous connections.
+//    
+//    if ( self.isReceiving ) {
+//        junk = close(fd);
+//        assert(junk == 0);
+//    } else {
+//        [self startReceive:fd];
+//    }
     
-    // If we already have a connection, reject this new one.  This is one of the
-    // big simplifying assumptions in this code.  A real server should handle
-    // multiple simultaneous connections.
-    
-    if ( self.isReceiving ) {
-        junk = close(fd);
-        assert(junk == 0);
-    } else {
-        [self startReceive:fd];
-    }
+    [self startReceive:fd];
 }
 
 static void AcceptCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef address, const void *data, void *info)

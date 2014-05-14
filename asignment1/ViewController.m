@@ -602,9 +602,6 @@
 {
     [[NetworkManager sharedInstance] didStartNetworkOperation];
     
-    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",@"Whattt"];
-    NSData *data = [[NSData alloc] initWithData:[s dataUsingEncoding:NSASCIIStringEncoding]];
-    [self.networkStream write:[data bytes] maxLength:[data length]];
 }
 
 - (void)updateStatus:(NSString *)statusString

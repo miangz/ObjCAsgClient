@@ -194,9 +194,9 @@
     
     [self initNetworkCommunication];
     
-    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
-    NSLog(@"I said: %@\n" , s);
-	data = [[NSData alloc] initWithData:[s dataUsingEncoding:NSASCIIStringEncoding]];
+//    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
+    NSLog(@"I said: %@\n" , string);
+	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[outputStream write:[data bytes] maxLength:[data length]];
     
 }
@@ -239,7 +239,6 @@
     
 	//NSLog(@"stream event %i", eventCode);
     
-    static int c = 0;
     
 	switch (eventCode) {
 		case NSStreamEventHasBytesAvailable:

@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-@interface ViewController : UIViewController<UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,UIGestureRecognizerDelegate,NSStreamDelegate>
+@interface ViewController : UIViewController<UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,UIGestureRecognizerDelegate,NSStreamDelegate,NSNetServiceDelegate>
 
 
 @property NSString *uid;
@@ -19,15 +19,20 @@
 @property int stockListNO;
 
 
+@property (nonatomic, assign, readonly ) BOOL               isStarted;
+@property (nonatomic, assign, readonly ) BOOL               isReceiving;
+@property (nonatomic, strong, readwrite) NSNetService *     netService;
+@property (nonatomic, assign, readwrite) CFSocketRef        listeningSocket;
 @property (nonatomic, assign, readonly ) BOOL               isSending;
 @property (nonatomic, strong, readwrite) NSOutputStream *   networkStream;
 @property (nonatomic, strong, readwrite) NSInputStream *    fileStream;
 @property (nonatomic, assign, readonly ) uint8_t *          buffer;
 @property (nonatomic, assign, readwrite) size_t             bufferOffset;
 @property (nonatomic, assign, readwrite) size_t             bufferLimit;
+
 @property (copy) NSData  *data ;
 
 - (void) sendMessage:(NSString *)string;
--(void)retrieveData:(NSURL *)url;
+-(void) retrieveData:(NSURL *)url;
 
 @end

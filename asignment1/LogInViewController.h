@@ -27,6 +27,5 @@
 @property (copy) NSData  *data ;
 
 - (void) sendMessage:(NSString *)string;
-
 - (void) stopServer:(NSString *)reason;
 @end

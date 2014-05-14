@@ -13,11 +13,8 @@
 
 #import "NetworkManager.h"
 #import "QNetworkAdditions.h"
-
 #import "NetworkManager.h"
-
 #include <CFNetwork/CFNetwork.h>
-
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>

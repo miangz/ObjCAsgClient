@@ -11,4 +11,5 @@
 @interface StocklistViewController : UIViewController<UITableViewDataSource,UITableViewDelegate>
 
 @property UITableView *table;
+@property NSString *uid;
 @end

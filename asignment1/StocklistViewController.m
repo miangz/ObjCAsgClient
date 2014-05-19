@@ -18,6 +18,7 @@
     UIButton *reorderBT;
 }
 @synthesize table;
+@synthesize uid;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

@@ -32,6 +32,8 @@
     UISwipeGestureRecognizer *recognizer2;
     UITextField *stockListName;
     NSMutableData *message;
+    NSTimer *t;
+    state s;
 }
 @synthesize uid;
 @synthesize table;
@@ -40,6 +42,7 @@
 @synthesize csvArr;
 @synthesize nameArr;
 @synthesize stockListNO;
+@synthesize totalList;
 
 @synthesize networkStream = _networkStream;
 @synthesize fileStream    = _fileStream;
@@ -56,18 +59,7 @@
     
     self.view.backgroundColor = [UIColor whiteColor];
     
-    NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
-    NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
-    if (csvInit.count == 0) {
-        csvArr = [[NSMutableArray alloc]init];
-        nameArr = [[NSMutableArray alloc]init];
-    }else{
-        csvArr = [[NSMutableArray alloc]initWithArray:[csvInit objectAtIndex:stockListNO]];
-        nameArr = [[NSMutableArray alloc]initWithArray:[nameInit objectAtIndex:stockListNO]];
-    }
     csv = [NSMutableArray new];
-    
-    
     recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipeFrom:)];
     [recognizer setDirection:(UISwipeGestureRecognizerDirectionRight)];
     [[self view] addGestureRecognizer:recognizer];
@@ -135,23 +127,23 @@
     [editBT setTitle:@"..." forState:UIControlStateNormal];
     [editBT addTarget:self action:@selector(editArr) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:editBT];
+    
 }
 
 
 
 -(void)viewDidAppear:(BOOL)animated{
-    if (count>0) {
-        [self loadNewStockList];
-    }
-    count++;
     [self startServer];
-    [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
+    count++;
+    [self loadNewStockList];
 }
 
 -(void)viewDidDisappear:(BOOL)animated{
     [self.fileStream close];
     [self.networkStream close];
     [self stopServer:nil];
+    [t invalidate];
+    t = nil;
 }
 
 - (void)didReceiveMemoryWarning
@@ -161,22 +153,40 @@
 }
 
 -(void)loadNewStockList{
+    [t invalidate];
+    t = nil;
+    NSLog(@"load new data");
     csvArr = nil;
     nameArr = nil;
-    NSArray *csvInit = [[NSArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
-    NSArray *nameInit = [[NSArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
-    if (csvInit.count == 0) {
-        csvArr = [[NSMutableArray alloc]init];
-        nameArr = [[NSMutableArray alloc]init];
-    }else{
-        csvArr = [[NSMutableArray alloc]initWithArray:[csvInit objectAtIndex:stockListNO]];
-        nameArr = [[NSMutableArray alloc]initWithArray:[nameInit objectAtIndex:stockListNO]];
-    }
-    csv = [NSMutableArray new];
+    [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
+    s = initArray;
     
     stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
+}
+
+-(void)reloadStockList{
     
-    [table  reloadData];
+    [t invalidate];
+    t = nil;
+    NSMutableString *nameStr = [[NSMutableString alloc]init];
+    for (int i = 0 ; i<nameArr.count; i++) {
+        if (i>0) {
+            [nameStr appendString:@"+"];
+        }
+        [nameStr appendString:[nameArr objectAtIndex:i]];
+    }
+    
+    NSLog(@"load new data");
+    csvArr = nil;
+    nameArr = nil;
+    [self sendMessage:[NSString stringWithFormat:@"getTheseStock:%@",nameStr]];
+//    NSLog(@"nameStr : %@",nameStr);
+    
+    s = updateArray;
+    
+    stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
+    t = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self
+                                       selector:@selector(reloadStockList) userInfo:nil repeats:NO];
 }
 
 #pragma mark - UITableViewDataSource
@@ -223,8 +233,7 @@
     
     cell.textLabel.text = [NSString stringWithFormat:@"%@  %@",[ticker substringToIndex:ticker.length-1],[name substringToIndex:name.length-1]];
     
-    NSString *change = [[arr objectAtIndex:4]substringFromIndex:1];
-    change = [change substringToIndex:change.length-2];
+    NSString *change = [arr objectAtIndex:4];
     if ([[arr objectAtIndex:3] floatValue]<0) {
         cell.backgroundColor = [UIColor redColor];
     }else if([[arr objectAtIndex:3] floatValue]>0) {
@@ -254,18 +263,12 @@
     [nameArr removeObjectAtIndex:sourceIndexPath.row];
     [nameArr insertObject:name atIndex:destinationIndexPath.row];
     
-    NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
-    NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
-    if (csvInit.count==0) {
-        [csvInit addObject:csvArr];
-        [nameInit addObject:nameArr];
-    }else{
-        [csvInit replaceObjectAtIndex:stockListNO withObject:csvArr];
-        [nameInit replaceObjectAtIndex:stockListNO withObject:nameArr];
-    }
-    [[NSUserDefaults standardUserDefaults] setObject:csvInit forKey:@"csvArr"];
-    [[NSUserDefaults standardUserDefaults] setObject:nameInit forKey:@"nameArr"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    NSString *string = [NSString stringWithFormat:@"moveStock:%@:%d:%d:%d",uid,stockListNO,sourceIndexPath.row,destinationIndexPath.row];
+    [self sendMessage:string];
+    s = initArray;
+    
+    [table reloadData];
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath { //implement the delegate method
@@ -274,20 +277,12 @@
         // Update data source array here, something like [array removeObjectAtIndex:indexPath.row];
         
         
-        NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
-        NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
+        NSString *string = [NSString stringWithFormat:@"removeStock:%@:%@:%d",uid,[nameArr objectAtIndex:indexPath.row],stockListNO];
+        [self sendMessage:string];
         
         [csvArr removeObjectAtIndex:indexPath.row];
         [nameArr removeObjectAtIndex:indexPath.row];
-        
-        [csvInit replaceObjectAtIndex:stockListNO withObject:csvArr];
-        [nameInit replaceObjectAtIndex:stockListNO withObject:nameArr];
-        [[NSUserDefaults standardUserDefaults] setObject:csvInit forKey:@"csvArr"];
-        [[NSUserDefaults standardUserDefaults] setObject:nameInit forKey:@"nameArr"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        
-        
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [table reloadData];
     }
 }
 
@@ -295,6 +290,7 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     DetailViewController *d = [[DetailViewController alloc]init];
     NSLog(@"nameArr : %@",nameArr);
+    d.csv = [csvArr objectAtIndex:indexPath.row];
     d.stockName = [nameArr objectAtIndex:indexPath.row];
     [self presentViewController:d animated:NO completion:nil];
 }
@@ -302,9 +298,9 @@
 #pragma mark - UIGestureRecognizerDelegate
 -(void)handleSwipeFrom:(id)sender {
     int swipe = 0;// 1 = left 2 = right
-    NSArray *csvInit = [[NSArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
+//    NSArray *csvInit = [[NSArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
     if(sender == recognizer2){
-        if (stockListNO<csvInit.count-1) {
+        if (stockListNO<totalList-1) {
             stockListNO++;
             swipe = 1;
         }
@@ -318,15 +314,9 @@
     if (swipe>0) {
         csvArr = nil;
         nameArr = nil;
-        NSArray *csvInit = [[NSArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
-        NSArray *nameInit = [[NSArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
-        if (csvInit.count == 0) {
-            csvArr = [[NSMutableArray alloc]init];
-            nameArr = [[NSMutableArray alloc]init];
-        }else{
-            csvArr = [[NSMutableArray alloc]initWithArray:[csvInit objectAtIndex:stockListNO]];
-            nameArr = [[NSMutableArray alloc]initWithArray:[nameInit objectAtIndex:stockListNO]];
-        }
+        [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
+        s = initArray;
+        
         csv = [NSMutableArray new];
         
         stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
@@ -339,12 +329,17 @@
 }
 
 -(void)submitted{
-    
+    if ([nameArr containsObject:txt.text]) {
+        NSLog(@"\nnameArr : %@\ncsvArr : %@\nstockNO : %d\ntotalNO : %d",nameArr,csvArr,stockListNO,totalList);
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"ERROR" message:@"This stock is already in your list" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil ];
+        [alert show];
+    }
     
     NSLog(@"nameArr : %@",nameArr);
     NSString *name = [NSString stringWithFormat:@"modifyStock:%@:%@:%d",uid,txt.text,stockListNO];
     NSLog(@"name: %@",name);
     [self sendMessage:name];
+    s = addObject;
 }
 
 -(void)editArr{
@@ -367,21 +362,15 @@
 }
 
 -(void)addList{
-    NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
-    NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
     csvArr = nil;
     nameArr = nil;
     
     csvArr = [[NSMutableArray alloc]init];
     nameArr = [[NSMutableArray alloc]init];
-    [csvInit addObject:csvArr];
-    [nameInit addObject:nameArr];
-    
-    stockListNO = csvInit.count-1;
-    [[NSUserDefaults standardUserDefaults] setObject:csvInit forKey:@"csvArr"];
-    [[NSUserDefaults standardUserDefaults] setObject:nameInit forKey:@"nameArr"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    stockListNO = totalList;
     [table reloadData];
+    [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,totalList]];
+    totalList++;
     stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
 }
 
@@ -492,6 +481,16 @@
     
 }
 
+- (void)sendData:(NSData *)mydata{
+    if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
+        [self.networkStream close];
+    }
+    
+    [self initNetworkCommunication];
+	[self.networkStream write:[mydata bytes] maxLength:[mydata length]];
+    
+}
+
 - (void) initNetworkCommunication {
     NSOutputStream *    output;
     BOOL                success;
@@ -563,24 +562,40 @@
                                 NSLog(@"stock not found");
                             }
                         }else{
-                            [nameArr insertObject:txt.text atIndex:0];
-                            [csvArr insertObject:array atIndex:0];
+                            if (nameArr == nil) {
+                                nameArr = [[NSMutableArray alloc]init];
+                            }
+                            if (csvArr == nil) {
+                                csvArr = [[NSMutableArray alloc]init];
+                            }
+                            if (s == initArray ) {
+                                totalList = [[array lastObject]intValue];
+                                
+                                for (int i = 0; i < array.count-1 ; i++) {
+                                    NSRange r = NSMakeRange(1, [[[array objectAtIndex:i] objectAtIndex:0]length]-2);
+                                    NSString *nameStock = [[[array objectAtIndex:i] objectAtIndex:0]substringWithRange:r];
+                                    [nameArr insertObject:nameStock atIndex:0];
+                                    [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
+                                }
+                            }else if (s == updateArray) {
+                                for (int i = 0; i < array.count ; i++) {
+                                    NSRange r = NSMakeRange(1, [[[array objectAtIndex:i] objectAtIndex:0]length]-2);
+                                    NSString *nameStock = [[[array objectAtIndex:i] objectAtIndex:0]substringWithRange:r];
+                                    [nameArr insertObject:nameStock atIndex:0];
+                                    [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
+                                }
+                            }
+                            else{
+                                [nameArr insertObject:txt.text atIndex:0];
+                                [csvArr insertObject:array atIndex:0];
+                            }
                             [table reloadData];
                             
-                            NSMutableArray *csvInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
-                            NSMutableArray *nameInit = [[NSMutableArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
-                            if (csvInit.count==0) {
-                                [csvInit addObject:csvArr];
-                                [nameInit addObject:nameArr];
-                            }else{
-                                [csvInit replaceObjectAtIndex:stockListNO withObject:csvArr];
-                                [nameInit replaceObjectAtIndex:stockListNO withObject:nameArr];
-                            }
-                            [[NSUserDefaults standardUserDefaults] setObject:csvInit forKey:@"csvArr"];
-                            [[NSUserDefaults standardUserDefaults] setObject:nameInit forKey:@"nameArr"];
-                            [[NSUserDefaults standardUserDefaults] synchronize];
-
-                            NSLog(@"array :%@",array);
+                            [t invalidate];
+                            t = nil;
+                            t = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self
+                                                           selector:@selector(reloadStockList) userInfo:nil repeats:NO];
+                            s = received;
                         }
                         message = nil;
                     }

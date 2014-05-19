@@ -8,7 +8,12 @@
 
 #import <UIKit/UIKit.h>
 @interface ViewController : UIViewController<UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,UIGestureRecognizerDelegate,NSStreamDelegate,NSNetServiceDelegate>
-
+typedef enum {
+    initArray,
+    updateArray,
+    addObject,
+    received
+} state ;
 
 @property NSString *uid;
 @property NSArray *csv;
@@ -17,7 +22,7 @@
 @property NSMutableArray *csvArr;
 @property NSMutableArray *nameArr;
 @property int stockListNO;
-
+@property int totalList;
 
 @property (nonatomic, assign, readonly ) BOOL               isStarted;
 @property (nonatomic, assign, readonly ) BOOL               isReceiving;

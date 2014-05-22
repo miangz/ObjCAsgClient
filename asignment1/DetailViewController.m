@@ -62,7 +62,6 @@
     [self updateGraph];
 }
 
-
 -(void)viewDidDisappear:(BOOL)animated{
     [self stopServer:nil];
 }
@@ -73,6 +72,7 @@
     // Dispose of any resources that can be recreated.
 }
 -(void)back{
+    
     [self dismissViewControllerAnimated:NO completion:nil];
     
 }

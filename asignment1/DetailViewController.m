@@ -27,7 +27,7 @@
     float max;
     
     NSTimer *t;
-    
+    BOOL isClosed;
     NSMutableData *message;
 }
 
@@ -51,6 +51,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    isClosed = NO;
     if (self.ArrayOfValues == nil) {
         self.ArrayOfValues = [[NSMutableArray alloc]init];
     }
@@ -63,6 +64,9 @@
 }
 
 -(void)viewDidDisappear:(BOOL)animated{
+    [t invalidate];
+    t = nil;
+    isClosed = YES;
     [self stopServer:nil];
 }
 
@@ -77,6 +81,9 @@
     
 }
 -(void)updateGraph{
+    if (isClosed == YES) {
+        return;
+    }
     [t invalidate];
     t = nil;
     

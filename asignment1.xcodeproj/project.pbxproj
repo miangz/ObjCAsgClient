@@ -381,6 +381,9 @@
 					EB11A62418F4EF2E00B9E6D6 = {
 						TestTargetID = EB7FA38F18F4125000B08F3C;
 					};
+					EB7FA38F18F4125000B08F3C = {
+						DevelopmentTeam = 7E9WUWPF5E;
+					};
 					EB7FA3B018F4125000B08F3C = {
 						TestTargetID = EB7FA38F18F4125000B08F3C;
 					};
@@ -669,6 +672,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "asignment1/asignment1-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -679,6 +684,7 @@
 				INFOPLIST_FILE = "asignment1/asignment1-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -688,6 +694,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "asignment1/asignment1-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -698,6 +706,7 @@
 				INFOPLIST_FILE = "asignment1/asignment1-Info.plist";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

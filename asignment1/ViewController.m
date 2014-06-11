@@ -158,9 +158,9 @@
     NSLog(@"load new data");
     csvArr = nil;
     nameArr = nil;
-    [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
     s = initArray;
-    
+    [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
+
     stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
 }
 
@@ -179,10 +179,10 @@
     NSLog(@"load new data");
     csvArr = nil;
     nameArr = nil;
+    s = updateArray;
     [self sendMessage:[NSString stringWithFormat:@"getTheseStock:%@",nameStr]];
 //    NSLog(@"nameStr : %@",nameStr);
     
-    s = updateArray;
     
     stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
     t = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self
@@ -234,9 +234,9 @@
     cell.textLabel.text = [NSString stringWithFormat:@"%@  %@",[ticker substringToIndex:ticker.length-1],[name substringToIndex:name.length-1]];
     
     NSString *change = [arr objectAtIndex:4];
-    if ([[arr objectAtIndex:3] floatValue]<0) {
+    if ([[arr objectAtIndex:3] floatValue]<0 || [[arr objectAtIndex:4] floatValue]<0) {
         cell.backgroundColor = [UIColor redColor];
-    }else if([[arr objectAtIndex:3] floatValue]>0) {
+    }else if([[arr objectAtIndex:3] floatValue]>0 || [[arr objectAtIndex:4] floatValue]>0) {
         cell.backgroundColor = [UIColor colorWithRed:0.1 green:0.8 blue:0.6 alpha:1];//[UIColor cyanColor];
     }else{
         cell.backgroundColor = [UIColor grayColor];
@@ -265,8 +265,8 @@
     
     
     NSString *string = [NSString stringWithFormat:@"moveStock:%@:%d:%d:%d",uid,stockListNO,sourceIndexPath.row,destinationIndexPath.row];
-    [self sendMessage:string];
     s = initArray;
+    [self sendMessage:string];
     
     [table reloadData];
 }
@@ -278,6 +278,7 @@
         
         
         NSString *string = [NSString stringWithFormat:@"removeStock:%@:%@:%d",uid,[nameArr objectAtIndex:indexPath.row],stockListNO];
+        s = updateArray;
         [self sendMessage:string];
         
         [csvArr removeObjectAtIndex:indexPath.row];
@@ -314,9 +315,9 @@
     if (swipe>0) {
         csvArr = nil;
         nameArr = nil;
-        [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
         s = initArray;
-        
+        [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
+       
         csv = [NSMutableArray new];
         
         stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
@@ -338,8 +339,8 @@
     NSLog(@"nameArr : %@",nameArr);
     NSString *name = [NSString stringWithFormat:@"modifyStock:%@:%@:%d",uid,txt.text,stockListNO];
     NSLog(@"name: %@",name);
-    [self sendMessage:name];
     s = addObject;
+    [self sendMessage:name];
 }
 
 -(void)editArr{
@@ -369,6 +370,7 @@
     nameArr = [[NSMutableArray alloc]init];
     stockListNO = totalList;
     [table reloadData];
+    s = initArray;
     [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,totalList]];
     totalList++;
     stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
@@ -522,7 +524,6 @@
     
 	switch (eventCode) {
 		case NSStreamEventHasBytesAvailable:
-            NSLog(@"RECEIVING");
             
 			if (aStream == self.fileStream) {
                 
@@ -562,6 +563,7 @@
                                 NSLog(@"stock not found");
                             }
                         }else{
+                            NSLog(@"array : %@",array);
                             if (nameArr == nil) {
                                 nameArr = [[NSMutableArray alloc]init];
                             }
@@ -569,25 +571,44 @@
                                 csvArr = [[NSMutableArray alloc]init];
                             }
                             if (s == initArray ) {
-                                totalList = [[array lastObject]intValue];
+                                NSLog(@"initArray");
                                 
-                                for (int i = 0; i < array.count-1 ; i++) {
-                                    NSRange r = NSMakeRange(1, [[[array objectAtIndex:i] objectAtIndex:0]length]-2);
-                                    NSString *nameStock = [[[array objectAtIndex:i] objectAtIndex:0]substringWithRange:r];
-                                    [nameArr insertObject:nameStock atIndex:0];
-                                    [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
+                                if ([[array lastObject] isKindOfClass:[NSString class]]){
+                                    
+                                    totalList = [[array lastObject]intValue];
+                                    
+                                    for (int i = 0; i < array.count-1 ; i++) {
+                                        NSRange r = NSMakeRange(1, [[[array objectAtIndex:i] objectAtIndex:0]length]-2);
+                                        NSString *nameStock = [[[array objectAtIndex:i] objectAtIndex:0]substringWithRange:r];
+                                        if (![nameArr containsObject:[[array objectAtIndex:i] objectAtIndex:0]]) {
+                                            [nameArr insertObject:nameStock atIndex:0];
+                                            [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
+                                        }
+                                    }
                                 }
                             }else if (s == updateArray) {
+                                NSLog(@"updateArray");
                                 for (int i = 0; i < array.count ; i++) {
                                     NSRange r = NSMakeRange(1, [[[array objectAtIndex:i] objectAtIndex:0]length]-2);
                                     NSString *nameStock = [[[array objectAtIndex:i] objectAtIndex:0]substringWithRange:r];
-                                    [nameArr insertObject:nameStock atIndex:0];
-                                    [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
+                                    
+                                    if (![nameArr containsObject:[[array objectAtIndex:i] objectAtIndex:0]]) {
+                                        [nameArr insertObject:nameStock atIndex:0];
+                                        [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
+                                    }
                                 }
+                                
                             }
                             else{
-                                [nameArr insertObject:txt.text atIndex:0];
-                                [csvArr insertObject:array atIndex:0];
+                                NSLog(@"else");
+                                if(array.count>1 && ((int)[[array objectAtIndex:0]length])-2 > 0){
+                                    NSRange r = NSMakeRange(1, [[array objectAtIndex:0]length]-2);
+                                    NSString *nameStock = [[array objectAtIndex:0]substringWithRange:r];
+                                    if (![nameArr containsObject:nameStock]) {
+                                        [nameArr insertObject:txt.text atIndex:0];
+                                        [csvArr insertObject:array atIndex:0];
+                                    }
+                                }
                             }
                             [table reloadData];
                             
@@ -672,7 +693,6 @@
 }
 - (void)receiveDidStart
 {
-    NSLog( @"Receiving" );
     [[NetworkManager sharedInstance] didStartNetworkOperation];
 }
 - (void)receiveDidStopWithStatus:(NSString *)statusString
@@ -691,7 +711,7 @@
     assert(fd >= 0);
     
     
-    [self.fileStream open];
+//    [self.fileStream open];
     
     // Open a stream based on the existing socket file descriptor.  Then configure
     // the stream for async operation.

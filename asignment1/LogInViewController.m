@@ -34,6 +34,8 @@
     
     NSMutableData *message;
     UIAlertView *loadingView;
+    
+    NSString *lastRequest;
 }
 
 @synthesize networkStream = _networkStream;
@@ -230,6 +232,7 @@
     
 //    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
     NSLog(@"I said: %@" , string);
+    lastRequest = [NSString stringWithFormat:@"%@",string];
 	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
     
@@ -297,12 +300,20 @@
                         NSLog(@"Signed in successfully.");
                         ViewController *view = [[ViewController alloc]init];
                         view.uid = username.text;
+                        if (checkBoxSelected) {
+                            [[NSUserDefaults standardUserDefaults]setObject:username.text forKey:@"uid"];
+                            [[NSUserDefaults standardUserDefaults]synchronize];
+                        }
                         [self presentViewController:view animated:YES completion:nil];
                     }else{
                         NSRange rng = [str rangeOfString:@"Username or password is not correct.\n" options:0];
                         if (rng.length > 0) {
                             UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"ERROR!!" message:@"Username or password is not correct.\n" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
                             [alert show];
+                        }else if(lastRequest != nil){
+                            NSRange rng = [str rangeOfString:@"Please repeat your request again!!!\n" options:0];
+                            if (rng.length > 0)
+                                [self sendMessage:lastRequest];
                         }
                     }
                     message = nil;

@@ -7,6 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "LogInViewController.h"
+
 @interface ViewController : UIViewController<UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,UIGestureRecognizerDelegate,NSStreamDelegate,NSNetServiceDelegate>
 typedef enum {
     initArray,

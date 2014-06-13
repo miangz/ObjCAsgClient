@@ -7,6 +7,8 @@
 //
 
 #import "AppDelegate.h"
+#import "ViewController.h"
+#import "LogInViewController.h"
 
 @implementation AppDelegate{
     NSInputStream *inputStream;
@@ -16,6 +18,15 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    NSString *uid = [[NSUserDefaults standardUserDefaults]objectForKey:@"uid"];
+    if (uid != nil || uid.length != 0) {
+        ViewController *view = [[ViewController alloc]init];
+        view.uid = uid;
+        self.window.rootViewController = view;
+    }else{
+        LogInViewController *view = [[LogInViewController alloc]init];
+        self.window.rootViewController = view;
+    }
     return YES;
 }
 

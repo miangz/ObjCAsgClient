@@ -25,10 +25,16 @@
     CPTXYGraph *graph;
     float min;
     float max;
+    int count;
+    
+    UITextField * price;
+    UITextField * change;
     
     NSTimer *t;
     BOOL isClosed;
     NSMutableData *message;
+    
+    NSString *lastRequest;
 }
 
 @synthesize stockName;
@@ -51,6 +57,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    count = 0;
     isClosed = NO;
     if (self.ArrayOfValues == nil) {
         self.ArrayOfValues = [[NSMutableArray alloc]init];
@@ -93,7 +100,6 @@
 -(void)initData{
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIColor *color;
         
         //set layout
         //name
@@ -106,7 +112,7 @@
         [self.view addSubview:name];
         
         //price
-        UITextField * price = [[UITextField alloc]initWithFrame:CGRectMake(20, 80, 120, 30)];
+        price = [[UITextField alloc]initWithFrame:CGRectMake(20, 80, 120, 30)];
         price.font = [UIFont boldSystemFontOfSize:30];
         NSRange rp = NSMakeRange(0, [[csv objectAtIndex:2]length]);
         price.text = [NSString stringWithFormat:@"%@",[[csv objectAtIndex:2]substringWithRange:rp]];
@@ -115,11 +121,12 @@
         
         // change (percent change)
         int y = [[csv objectAtIndex:2]length]*20 ;
-        UITextField * change = [[UITextField alloc]initWithFrame:CGRectMake(y, 85, 150, 30)];
+        change = [[UITextField alloc]initWithFrame:CGRectMake(y, 85, 150, 30)];
         NSRange rc = NSMakeRange(0, [[csv objectAtIndex:3]length]);
 //        NSRange rc2 = NSMakeRange(2, [[csv objectAtIndex:4]length]-3);
         change.text = [NSString stringWithFormat:@"%@(%@%%)",[[csv objectAtIndex:3]substringWithRange:rc],[csv objectAtIndex:4]];
         
+        UIColor *color;
         if ([[[csv objectAtIndex:3]substringWithRange:rc]floatValue]>0) {
             color = [UIColor colorWithRed:31.0/255.0 green:187.0/255.0 blue:166.0/255.0 alpha:1.0];
         }else if ([[[csv objectAtIndex:3]substringWithRange:rc]floatValue]<0) {
@@ -221,6 +228,39 @@
     [self.view addSubview:backBT];
 }
 
+-(void)updateData:(NSArray *)array{
+    NSLog(@"enter updateData");
+    
+    //price
+    NSRange rp = NSMakeRange(0, [[array objectAtIndex:2]length]);
+    price.text = [NSString stringWithFormat:@"%@",[[array objectAtIndex:2]substringWithRange:rp]];
+    
+    float secondLast = [[self.ArrayOfValues objectAtIndex:self.ArrayOfValues.count-2]floatValue];
+    float last = [[self.ArrayOfValues lastObject]floatValue];
+    if (last == secondLast) {
+        return;
+    }
+    
+    int y = [[array objectAtIndex:2]length]*20 ;
+    change.frame = CGRectMake(y, 85, 150, 30);
+    // change (percent change)
+    //        NSRange rc2 = NSMakeRange(2, [[csv objectAtIndex:4]length]-3);
+    change.text = [NSString stringWithFormat:@"%.2f(%.2f%%)",last - secondLast,(last - secondLast)/[price.text floatValue]];
+
+    UIColor *color;
+    if (last - secondLast>0) {
+        color = [UIColor colorWithRed:31.0/255.0 green:187.0/255.0 blue:166.0/255.0 alpha:1.0];
+    }else if (last - secondLast<0) {
+        color = [UIColor redColor];
+    }else{
+        color = [UIColor grayColor];
+    }
+    change.textColor = color;
+    
+    NSLog(@"chang.txt : %@",change.text);
+    NSLog(@"last : %f , secondLast : %f",last,secondLast);
+}
+
 -(void)initGraph{
     //Graph
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -255,22 +295,65 @@
     graph.paddingBottom = 0.0;
     
     
+    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)graph.defaultPlotSpace;
     
+    NSDecimal low    = CPTDecimalFromFloat(min*0.9);
+    NSDecimal length = CPTDecimalFromFloat((max*1.1)-(min*0.9));
+    
+    //NSLog(@"high = %@, low = %@, length = %@", high, low, length);
+    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(-2) length:CPTDecimalFromUnsignedInteger(12)];
+    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:low length:length];
     // Axes
     CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
-    CPTXYAxis *x          = axisSet.xAxis;
-    x.majorIntervalLength         = CPTDecimalFromDouble(1);
-    x.minorTicksPerInterval       = 5;
-    x.orthogonalCoordinateDecimal = CPTDecimalFromDouble(0);
-    x.delegate = self;
-
     
-    CPTXYAxis *y = axisSet.yAxis;
-    y.majorIntervalLength         = CPTDecimalFromDouble((max-min)/10);//distant bt 2 label
-    y.minorTicksPerInterval       = 5;
-    y.orthogonalCoordinateDecimal = CPTDecimalFromDouble(0);
+    CPTXYAxis *x = axisSet.xAxis;
+    x.majorIntervalLength         = CPTDecimalFromDouble(10.0);
+    x.orthogonalCoordinateDecimal = CPTDecimalFromInteger(0);
+    x.minorTicksPerInterval       = 1;
+    
+    
+    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+    [numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+    [numberFormatter setMaximumFractionDigits:6];
+    if (max<1) {
+        [numberFormatter setPositiveFormat:@"###0.000"];
+    }else if(max>100){
+        [numberFormatter setPositiveFormat:@"###0.0"];
+    }else{
+        [numberFormatter setPositiveFormat:@"###0.00"];
+    }
+    CPTXYAxis *y  = axisSet.yAxis;
+    NSDecimal six = CPTDecimalFromInteger(6);
+    y.majorIntervalLength         = CPTDecimalDivide(length, six);
+    y.majorTickLineStyle          = nil;
+    y.minorTicksPerInterval       = 4;
+    y.minorTickLineStyle          = nil;
+    y.orthogonalCoordinateDecimal = CPTDecimalFromInteger(0);
     y.alternatingBandFills        = @[[[CPTColor whiteColor] colorWithAlphaComponent:0.1], [NSNull null]];
-    y.delegate             = self;
+    
+    
+    y.labelingPolicy = CPTAxisLabelingPolicyAutomatic;
+    y.minorTicksPerInterval = 1;
+    y.preferredNumberOfMajorTicks = 5;
+    y.labelFormatter = numberFormatter;
+    
+//    // Axes
+//    CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
+//    CPTXYAxis *x          = axisSet.xAxis;
+//    x.majorIntervalLength         = CPTDecimalFromDouble(1);
+//    x.minorTicksPerInterval       = 5;
+//    x.orthogonalCoordinateDecimal = CPTDecimalFromDouble(0);
+//    x.delegate = self;
+//
+//    
+//    CPTXYAxis *y = axisSet.yAxis;
+//    y.majorIntervalLength         = CPTDecimalFromDouble((max-min)/10);//distant bt 2 label
+//    y.minorTicksPerInterval       = 5;
+//    y.orthogonalCoordinateDecimal = CPTDecimalFromDouble(0);
+//    y.alternatingBandFills        = @[[[CPTColor whiteColor] colorWithAlphaComponent:0.1], [NSNull null]];
+//    y.delegate             = self;
+//    
+    
     
     [self.view addSubview:hostingView];
 
@@ -291,7 +374,7 @@
     areaGradient.angle = -90.0;
     CPTFill *areaGradientFill = [CPTFill fillWithGradient:areaGradient];
     dataSourceLinePlot.areaFill      = areaGradientFill;
-    dataSourceLinePlot.areaBaseValue = CPTDecimalFromDouble(min-min/5);//fill under graph to 0
+    dataSourceLinePlot.areaBaseValue = CPTDecimalFromDouble(max-min/5);//fill under graph to 0
     
     dataSourceLinePlot.opacity = 0.0;
     [graph addPlot:dataSourceLinePlot];
@@ -310,30 +393,44 @@
 
 }
 -(void)setupPlotSpace{
-    // Setup plot space
+    
     CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)graph.defaultPlotSpace;
+    
     plotSpace.allowsUserInteraction = YES;
+    NSDecimal low    = CPTDecimalFromFloat(min*0.9);
+    NSDecimal length = CPTDecimalFromFloat((max*1.1)-(min*0.9));
     
-//    [plotSpace scaleToFitPlots:[NSArray arrayWithObjects:dataSourceLinePlot,nil]];
+    //NSLog(@"high = %@, low = %@, length = %@", high, low, length);
+    plotSpace.xRange = [CPTPlotRange plotRangeWithLocation:CPTDecimalFromDouble(-2) length:CPTDecimalFromUnsignedInteger(12)];
+    plotSpace.yRange = [CPTPlotRange plotRangeWithLocation:low length:length];
+    // Axes
+    CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
     
-	CPTMutablePlotRange *xRange = [plotSpace.xRange mutableCopy];
-    NSDecimal oldLength      = xRange.length;
-    NSDecimal newLength      = CPTDecimalMultiply(oldLength, CPTDecimalFromCGFloat(9));
-    xRange.length   = newLength;
-	plotSpace.xRange = xRange;
+    CPTXYAxis *x = axisSet.xAxis;
+    x.majorIntervalLength         = CPTDecimalFromDouble(10.0);
+    x.orthogonalCoordinateDecimal = CPTDecimalFromInteger(0);
+    x.minorTicksPerInterval       = 1;
     
-	CPTMutablePlotRange *yRange = [plotSpace.yRange mutableCopy];
-//	[yRange expandRangeByFactor:CPTDecimalFromCGFloat(15)];
-    
-    NSDecimal oldLengthy      = yRange.length;
-    NSDecimal newLengthy      = CPTDecimalMultiply(oldLengthy, CPTDecimalFromCGFloat(15));
-//    NSDecimal locationOffset = CPTDecimalDivide( CPTDecimalSubtract(oldLength, newLength), CPTDecimalFromInteger(2) );
-//    NSDecimal newLocation    = CPTDecimalAdd(self.location, locationOffset);
+    CPTXYAxis *y  = axisSet.yAxis;
+    NSDecimal six = CPTDecimalFromInteger(6);
+    y.majorIntervalLength         = CPTDecimalDivide(length, six);
+    y.majorTickLineStyle          = nil;
+    y.minorTicksPerInterval       = 4;
+    y.minorTickLineStyle          = nil;
+    y.orthogonalCoordinateDecimal = CPTDecimalFromInteger(0);
+    y.alternatingBandFills        = @[[[CPTColor whiteColor] colorWithAlphaComponent:0.1], [NSNull null]];
+//    CPTXYPlotSpace *plotSpace = (CPTXYPlotSpace *)graph.defaultPlotSpace;
+//    plotSpace.allowsUserInteraction = NO;
+//	CPTMutablePlotRange *xRange = [plotSpace.xRange mutableCopy];
+//    [xRange unionPlotRange:[CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(-0.4) length:CPTDecimalFromFloat(10.025)]];
+//    plotSpace.xRange = xRange;
 //    
-//    self.location = newLocation;
-    yRange.length   = newLengthy;
+//    float rangefillter = max-min==0? max/10:(max-min);
+//	CPTMutablePlotRange *yRange = [plotSpace.yRange mutableCopy];
+//    [yRange shiftEndToFitInRange:[CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(max*1.1) length:CPTDecimalFromFloat(rangefillter)]];
+//    [yRange unionPlotRange:[CPTPlotRange plotRangeWithLocation:CPTDecimalFromFloat(min*0.9) length:CPTDecimalFromFloat(rangefillter)]];
+//    plotSpace.yRange = yRange;
     
-	plotSpace.yRange = yRange;
 }
 #pragma mark -
 #pragma mark Plot Data Source Methods
@@ -358,6 +455,7 @@
 //
 -(BOOL)axis:(CPTAxis *)axis shouldUpdateAxisLabelsAtLocations:(NSSet *)locations
 {
+    return NO;
     CPTXYAxisSet *axisSet = (CPTXYAxisSet *)graph.axisSet;
     if (axis == axisSet.xAxis) {
         return NO;
@@ -421,6 +519,7 @@
     
     //    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
     NSLog(@"I said: %@" , string);
+    lastRequest = [[NSString alloc]initWithString:string];
 	NSData *data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
     
@@ -505,23 +604,44 @@
                             NSRange rng = [str rangeOfString:@"stock not found" options:0];
                             if (rng.length > 0) {
                                 NSLog(@"stock not found");
+                            }else if(lastRequest != nil){
+                                NSRange rng = [str rangeOfString:@"Please repeat your request again!!!\n" options:0];
+                                if (rng.length > 0)
+                                    [self sendMessage:lastRequest];
                             }
-                        }else{
+                        }else if([[array objectAtIndex:0]isEqualToString:@"getStockDetail"]){
                             NSLog(@"array :%@",array);
                             if (self.ArrayOfValues == nil) {
                                 self.ArrayOfValues = [[NSMutableArray alloc]init];
                             }
+                            NSArray *dataOfStock = [array objectAtIndex:1];
+                            [self.ArrayOfValues addObject:[dataOfStock objectAtIndex:2]];
                             
-                            [self.ArrayOfValues addObject:[array objectAtIndex:2]];
+                            if (count == 0) {
+                                max = -1;
+                                min = 99999999;
+                            }
+                            NSString *value = [self.ArrayOfValues lastObject];
+                            if (max<[value floatValue]) {
+                                max = [value floatValue];
+                                NSLog(@"max : %f",max);
+                                [self setupPlotSpace];
+                            }
+                            if (min>[value floatValue]) {
+                                min = [value floatValue];
+                                NSLog(@"min : %f",min);
+                                [self setupPlotSpace];
+                            }
+                            
                             if (self.ArrayOfValues.count>10) {
                                 [self.ArrayOfValues removeObjectAtIndex:0];
                             }
-                            static int count = 0;
                             if (count == 0) {
                                 [self initGraph];
                                 count++;
                             }
                             else{
+                                [self updateData:[array objectAtIndex:1]];
                                 [graph reloadData];
                             }
                             t = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(updateGraph) userInfo:nil repeats:NO];

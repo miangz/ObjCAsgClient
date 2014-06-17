@@ -17,6 +17,7 @@
 		EB22FCEE1919DEEA00EFD344 /* checked.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB22FCED1919DEEA00EFD344 /* checked.jpg */; };
 		EB22FCF01919DEF800EFD344 /* unchecked.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB22FCEF1919DEF800EFD344 /* unchecked.jpg */; };
 		EB22FCF31919EB2B00EFD344 /* SignUpViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB22FCF21919EB2B00EFD344 /* SignUpViewController.m */; };
+		EB2AA6A3194AB74A000EAFB6 /* HandleStockListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB2AA6A2194AB74A000EAFB6 /* HandleStockListViewController.m */; };
 		EB3976D6190FA60000E5F1BB /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3976D5190FA60000E5F1BB /* QuartzCore.framework */; };
 		EB3976D8190FA60800E5F1BB /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3976D7190FA60800E5F1BB /* Accelerate.framework */; };
 		EB3B8A0D18FE3309005930B0 /* StocklistViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB3B8A0C18FE3309005930B0 /* StocklistViewController.m */; };
@@ -92,6 +93,8 @@
 		EB22FCEF1919DEF800EFD344 /* unchecked.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = unchecked.jpg; sourceTree = "<group>"; };
 		EB22FCF11919EB2B00EFD344 /* SignUpViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignUpViewController.h; sourceTree = "<group>"; };
 		EB22FCF21919EB2B00EFD344 /* SignUpViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SignUpViewController.m; sourceTree = "<group>"; };
+		EB2AA6A1194AB74A000EAFB6 /* HandleStockListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HandleStockListViewController.h; sourceTree = "<group>"; };
+		EB2AA6A2194AB74A000EAFB6 /* HandleStockListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HandleStockListViewController.m; sourceTree = "<group>"; };
 		EB3976D5190FA60000E5F1BB /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		EB3976D7190FA60800E5F1BB /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		EB3B8A0B18FE3309005930B0 /* StocklistViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StocklistViewController.h; sourceTree = "<group>"; };
@@ -244,6 +247,8 @@
 				EB7FA3C918F4126100B08F3C /* ViewController.m */,
 				EB1A7F2818FE9C4500EAAB04 /* DetailViewController.h */,
 				EB1A7F2918FE9C4500EAAB04 /* DetailViewController.m */,
+				EB2AA6A1194AB74A000EAFB6 /* HandleStockListViewController.h */,
+				EB2AA6A2194AB74A000EAFB6 /* HandleStockListViewController.m */,
 				EB3B8A0B18FE3309005930B0 /* StocklistViewController.h */,
 				EB3B8A0C18FE3309005930B0 /* StocklistViewController.m */,
 				EB7FA3CA18F4126100B08F3C /* ProfilerClk.h */,
@@ -475,6 +480,7 @@
 				EB7FA3CC18F4126100B08F3C /* ViewController.m in Sources */,
 				EBF711B7190631DD00C2DAA3 /* BEMAnimations.m in Sources */,
 				EB3B8A0D18FE3309005930B0 /* StocklistViewController.m in Sources */,
+				EB2AA6A3194AB74A000EAFB6 /* HandleStockListViewController.m in Sources */,
 				EB15E8BB1920D4800071A5C1 /* QNetworkAdditions.m in Sources */,
 				EB7FA3CD18F4126100B08F3C /* ProfilerClk.m in Sources */,
 				EB7FA3A418F4125000B08F3C /* AppDelegate.m in Sources */,

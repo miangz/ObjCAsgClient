@@ -76,6 +76,7 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - UITableViewDataSource
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     NSArray *nameInit = [[NSArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"nameArr"]];
     return nameInit.count;
@@ -104,38 +105,6 @@
     
     return cell;
 }
-
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-    
-    if([myIndexPath containsObject: indexPath] ){
-        UITableViewCell *formerSelectedcell = [tableView cellForRowAtIndexPath:indexPath];
-        // finding the already selected cell
-        [formerSelectedcell setAccessoryType:UITableViewCellAccessoryNone];
-        [myIndexPath removeObject:indexPath];
-    }else {
-        // 'select' the new cell
-        [cell setAccessoryType:UITableViewCellAccessoryCheckmark];
-        if (myIndexPath.count == 0) {
-            [myIndexPath addObject:indexPath];
-        }
-        else{
-            for (int i=0;i<myIndexPath.count;i++) {
-                if ([[myIndexPath objectAtIndex:i]row]>indexPath.row) {
-                    [myIndexPath insertObject:indexPath atIndex:i];
-                    return;
-                }else if(i==myIndexPath.count-1){
-                    [myIndexPath addObject:indexPath];
-                    return;
-                }
-            }
-            
-            
-        }
-    }
-    
-}
-
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     return YES;
 }
@@ -177,6 +146,39 @@
         [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }
 }
+
+#pragma mark - UITableViewDelegate
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    
+    if([myIndexPath containsObject: indexPath] ){
+        UITableViewCell *formerSelectedcell = [tableView cellForRowAtIndexPath:indexPath];
+        // finding the already selected cell
+        [formerSelectedcell setAccessoryType:UITableViewCellAccessoryNone];
+        [myIndexPath removeObject:indexPath];
+    }else {
+        // 'select' the new cell
+        [cell setAccessoryType:UITableViewCellAccessoryCheckmark];
+        if (myIndexPath.count == 0) {
+            [myIndexPath addObject:indexPath];
+        }
+        else{
+            for (int i=0;i<myIndexPath.count;i++) {
+                if ([[myIndexPath objectAtIndex:i]row]>indexPath.row) {
+                    [myIndexPath insertObject:indexPath atIndex:i];
+                    return;
+                }else if(i==myIndexPath.count-1){
+                    [myIndexPath addObject:indexPath];
+                    return;
+                }
+            }
+            
+            
+        }
+    }
+    
+}
+
 
 -(void)back{
     [self dismissViewControllerAnimated:NO completion:nil];

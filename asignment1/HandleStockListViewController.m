@@ -1,16 +1,12 @@
 //
-//  LogInViewController.m
+//  HandleStockListViewController.m
 //  asignment1
 //
-//  Created by miang on 5/6/2557 BE.
+//  Created by miang on 6/13/2557 BE.
 //  Copyright (c) 2557 miang. All rights reserved.
 //
 
-#import "LogInViewController.h"
-#import <QuartzCore/QuartzCore.h>
-#import "SignUpViewController.h"
-#import "ViewController.h"
-
+#import "HandleStockListViewController.h"
 #import "NetworkManager.h"
 #import "QNetworkAdditions.h"
 #import "NetworkManager.h"
@@ -19,22 +15,19 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-#define kOFFSET_FOR_KEYBOARD 80.0
-
-@interface LogInViewController ()
+@interface HandleStockListViewController ()
 
 @end
 
-@implementation LogInViewController{
-    
-    UIButton *checkbox;
-    BOOL checkBoxSelected;
-    UITextField *username;
-    UITextField *password;
-    
+@implementation HandleStockListViewController{
+    NSMutableArray *stockList;
     NSMutableData *message;
-    UIAlertView *loadingView;
     
+    NSMutableArray *myIndexPath;
+    UIButton *doneBT;
+    UIButton *reorderBT;
+    
+    int count;
     NSString *lastRequest;
 }
 
@@ -42,8 +35,13 @@
 @synthesize fileStream    = _fileStream;
 @synthesize bufferOffset  = _bufferOffset;
 @synthesize bufferLimit   = _bufferLimit;
-
 @synthesize data;
+
+@synthesize table;
+
+@synthesize stockListNO;
+@synthesize uid;
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -56,181 +54,214 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    UITapGestureRecognizer *yourTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(scrollTap:)];
-    [self.view addGestureRecognizer:yourTap];
+    myIndexPath = [[NSMutableArray alloc]init];
     
-    //Miang-Stock
-    self.view.backgroundColor = [UIColor colorWithRed:0.2 green:0.8 blue:0.6 alpha:1];
-    UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(32, 100, 256, 40)];
-    label.text = @"Miang-Stock";
-    label.textColor = [UIColor whiteColor];
-    label.font = [UIFont boldSystemFontOfSize:35];
-    [self.view addSubview:label];
+    self.view.backgroundColor = [UIColor whiteColor];
     
-    username = [[UITextField alloc]initWithFrame:CGRectMake(30, 180, 260, 30)];
-    username.backgroundColor = [UIColor whiteColor];
-    username.placeholder = @"  username";
-    [[username layer] setBorderWidth:1.2f];
-    [[username layer] setBorderColor:[UIColor grayColor].CGColor];
-    [[username layer]setCornerRadius:4];
-    username.delegate = self;
-    username.autocorrectionType = UITextAutocorrectionTypeNo;
-    [self.view addSubview:username];
+    table = [[UITableView alloc]initWithFrame:CGRectMake(0, 64, self.view.frame.size.width, self.view.frame.size.height-20)];
+    table.dataSource = self;
+    table.delegate = self;
+    table.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
+    [self.view addSubview:table];
     
-    password = [[UITextField alloc]initWithFrame:CGRectMake(30, 220, 260, 30)];
-    password.backgroundColor = [UIColor whiteColor];
-    password.placeholder = @"  password";
-    password.secureTextEntry = YES;
-    [[password layer] setBorderWidth:1.2f];
-    [[password layer] setBorderColor:[UIColor grayColor].CGColor];
-    [[password layer]setCornerRadius:4];
-    password.delegate =self;
-    password.autocorrectionType = UITextAutocorrectionTypeNo;
-    [self.view addSubview:password];
+    UIButton *deleteBT = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    deleteBT.frame = CGRectMake(230, 25, 70, 35);
+    [deleteBT setTitle:@"Delete" forState:UIControlStateNormal];
+    [deleteBT addTarget:self action:@selector(removeCell) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:deleteBT];
     
-    //checkbox
-    checkbox = [[UIButton alloc] initWithFrame:CGRectMake(35,265,20,20)];
+    UIButton *backBT = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    backBT.frame = CGRectMake(10, 25, 70, 35);
+    [backBT setTitle:@"<Back" forState:UIControlStateNormal];
+    [backBT addTarget:self action:@selector(back) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:backBT];
     
-    checkBoxSelected = YES;
-    [checkbox setSelected:checkBoxSelected];
-    [[checkbox layer] setBorderWidth:1.5f];
-    [[checkbox layer] setBorderColor:[UIColor grayColor].CGColor];
+    reorderBT = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    reorderBT.frame = CGRectMake(90, 25, 30, 35);
+    [reorderBT setTitle:@"Edit" forState:UIControlStateNormal];
+    [reorderBT addTarget:self action:@selector(reorder) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:reorderBT];
     
-                [checkbox setBackgroundImage:[UIImage imageNamed:@"unchecked.jpg"]
-                                    forState:UIControlStateNormal];
-                [checkbox setBackgroundImage:[UIImage imageNamed:@"checked.jpg"]
-                                    forState:UIControlStateSelected];
-                [checkbox setBackgroundImage:[UIImage imageNamed:@"checked.jpg"]
-                                    forState:UIControlStateHighlighted];
-                checkbox.adjustsImageWhenHighlighted=YES;
-    [checkbox addTarget:self action:@selector(checkboxSelected:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:checkbox];
-    
-    UILabel *label1 = [[UILabel alloc]initWithFrame:CGRectMake(70, 265, 150, 20)];
-    label1.text = @"Keep me signed in";
-    label1.textColor = [UIColor whiteColor];
-    [self.view addSubview:label1];
-    
-    UIButton *signInBT = [[UIButton alloc]initWithFrame:CGRectMake(30, 300, 100, 30)];
-    signInBT.backgroundColor = [UIColor colorWithRed:0.2 green:0.6 blue:0.5 alpha:1];
-    [signInBT setTitle:@"Sign in" forState:UIControlStateNormal];
-    [signInBT setTitleColor:[UIColor whiteColor]forState:UIControlStateNormal];
-    [signInBT setTitleColor:[UIColor darkGrayColor] forState:UIControlStateHighlighted];
-    [signInBT addTarget:self action:@selector(signIn) forControlEvents:UIControlEventTouchUpInside];
-    
-    [self.view addSubview:signInBT];
-    
-//    UIButton *forgotBT = [[UIButton alloc]initWithFrame:CGRectMake(30, 360, 148, 30)];
-//    [forgotBT setTitle:@"Forgot password?" forState:UIControlStateNormal];
-//    [forgotBT setTitle:@"Forgot password?" forState:UIControlStateSelected];
-//    [forgotBT setTitleColor:[UIColor darkGrayColor]forState:UIControlStateNormal];
-//    [forgotBT setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
-//    [self.view addSubview:forgotBT];
-    
-    
-    UILabel *label2 = [[UILabel alloc]initWithFrame:CGRectMake(30, 393, 200, 20)];
-    label2.text = @"Don't have an account?";
-    label2.textColor = [UIColor darkGrayColor];//[UIColor colorWithRed:0.1 green:0.4 blue:0.3 alpha:1];
-    [self.view addSubview:label2];
-    
-    UIButton *signUpBT = [[UIButton alloc]initWithFrame:CGRectMake(210, 393, 80, 20)];
-    [signUpBT setTitle:@"Sign up" forState:UIControlStateNormal];
-    [signUpBT setTitle:@"Sign up" forState:UIControlStateSelected];
-    [signUpBT setTitleColor:[UIColor whiteColor]forState:UIControlStateNormal];
-    [signUpBT setTitleColor:[UIColor grayColor] forState:UIControlStateHighlighted];
-    [signUpBT addTarget:self action:@selector(signUp) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:signUpBT];
+    doneBT = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    doneBT.frame = CGRectMake(90, 25, 40, 35);
+    [doneBT setTitle:@"Done" forState:UIControlStateNormal];
+    [doneBT addTarget:self action:@selector(reorder) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:doneBT];
+    doneBT.hidden = YES;
     
 }
+
+
+
+
 -(void)viewDidAppear:(BOOL)animated{
     [self startServer];
+    lastRequest = [NSString stringWithFormat:@"getAllStockList:%@",uid];
+    [self sendMessage:lastRequest];
 }
+
 -(void)viewDidDisappear:(BOOL)animated{
+    [self.fileStream close];
+    [self.networkStream close];
     [self stopServer:nil];
 }
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-                
--(void)checkboxSelected:(id)sender{
-    checkBoxSelected = !checkBoxSelected;
-    [checkbox setSelected:checkBoxSelected];
-}
 
 
-#pragma mark - Navigation
--(void)signIn{
-    NSLog(@"sign in");
-    NSString *msg = [NSString stringWithFormat:@"signIn:%@\t%@",username.text,password.text];
-    [self sendMessage:msg];
-}
--(void)signUp{
-    NSLog(@"sign up");
-    SignUpViewController *sView = [[SignUpViewController alloc]init];
-    [self presentViewController:sView animated:YES completion:nil];
+#pragma mark - UITableViewDataSource
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return stockList.count;
 }
 
-#pragma mark - handle keyboard
-- (void)scrollTap:(UIGestureRecognizer*)gestureRecognizer {
-    
-    [username resignFirstResponder];
-    [password resignFirstResponder];
-    if (self.view.frame.origin.y < 0)
-        [self setViewMovedUp:NO];
-}
-//method to move the view up/down whenever the keyboard is shown/dismissed
--(void)setViewMovedUp:(BOOL)movedUp
-{
-    [UIView beginAnimations:nil context:NULL];
-    [UIView setAnimationDuration:0.3]; // if you want to slide up the view
-    
-    CGRect rect = self.view.frame;
-    if (movedUp)
-    {
-        rect.origin.y -= kOFFSET_FOR_KEYBOARD;
-        rect.size.height += kOFFSET_FOR_KEYBOARD;
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewCell *cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
+    NSString *str = [stockList objectAtIndex:indexPath.row];
+    if (str.length<8) {
+        cell.textLabel.text = @"This list is empty.";
+        return cell;
     }
-    else
-    {
-        rect.origin.y += kOFFSET_FOR_KEYBOARD;
-        rect.size.height -= kOFFSET_FOR_KEYBOARD;
-    }
-    self.view.frame = rect;
+    str = [str substringFromIndex:8];
+    cell.textLabel.text = [str stringByReplacingOccurrencesOfString:@"+" withString:@","];;
     
-    [UIView commitAnimations];
+    return cell;
+}
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+    return YES;
 }
 
-//handle kb
--(void)textFieldDidBeginEditing:(UITextField *)sender
-{
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath {
     
-    //move the main view, so that the keyboard does not hide it.
-    if  (self.view.frame.origin.y >= 0)
-    {
-        [self setViewMovedUp:YES];
-        return;
+    NSString *change = [stockList objectAtIndex:sourceIndexPath.row];
+    [stockList removeObjectAtIndex:sourceIndexPath.row];
+    [stockList insertObject:change atIndex:destinationIndexPath.row];
+    [self reorderListFrom:sourceIndexPath to:destinationIndexPath];
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        if (indexPath.row == stockListNO) {
+            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"You can't delete the viewing list" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+            [alert show];
+            return;
+        }
+        NSString *string = [NSString stringWithFormat:@"removeList:%@:%d",uid,indexPath.row];
+        [self sendMessage:string];
+        [stockList removeObjectAtIndex:indexPath.row];
+        
+        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
     }
 }
 
-#pragma mark - NSStreamDelegate
+#pragma mark - UITableViewDelegate
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    
+    if([myIndexPath containsObject: indexPath] ){
+        UITableViewCell *formerSelectedcell = [tableView cellForRowAtIndexPath:indexPath];
+        // finding the already selected cell
+        [formerSelectedcell setAccessoryType:UITableViewCellAccessoryNone];
+        [myIndexPath removeObject:indexPath];
+    }else {
+        // 'select' the new cell
+        [cell setAccessoryType:UITableViewCellAccessoryCheckmark];
+        if (myIndexPath.count == 0) {
+            [myIndexPath addObject:indexPath];
+        }
+        else{
+            for (int i=0;i<myIndexPath.count;i++) {
+                if ([[myIndexPath objectAtIndex:i]row]>indexPath.row) {
+                    [myIndexPath insertObject:indexPath atIndex:i];
+                    return;
+                }else if(i==myIndexPath.count-1){
+                    [myIndexPath addObject:indexPath];
+                    return;
+                }
+            }
+            
+            
+        }
+    }
+    
+}
+
+
+#pragma mark manage button
+
+-(void)back{
+    [self dismissViewControllerAnimated:YES completion:nil];
+    
+}
+
+-(void)reorder{
+    if (table.editing == YES) {
+        table.editing = NO;
+        doneBT.hidden = YES;
+        reorderBT.hidden = NO;
+    }else{
+        table.editing = YES;
+        doneBT.hidden = NO;
+        reorderBT.hidden = YES;
+    }
+}
+
+-(void)removeCell{
+    NSMutableString *string = [[NSMutableString alloc]initWithString:@"removeList:"];
+    [string appendString:uid];
+    for (int i=myIndexPath.count-1; i>=0; i--) {
+        if ([[myIndexPath objectAtIndex:i]row] == stockListNO) {
+            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"You can't delete the viewing list" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+            [alert show];
+            return;
+        }
+        [stockList removeObjectAtIndex:i];
+        if (i != myIndexPath.count-1) {
+            [string appendString:@"+"];
+        }
+        
+        NSIndexPath *index = [myIndexPath objectAtIndex:i];
+        [string appendString:[NSString stringWithFormat:@"%d",index.row]];
+        if (i == 0) {
+            [myIndexPath removeAllObjects];
+            [table reloadData];
+            [self sendMessage:string];
+        }
+    }
+}
+
+-(void)reorderListFrom:(NSIndexPath *)sourceIndexPath to:(NSIndexPath *)destinationIndexPath{
+    
+    NSString *string = [NSString stringWithFormat:@"reorderList:%@:%d:%d",uid,sourceIndexPath.row,destinationIndexPath.row];
+    [self sendMessage:string];
+}
+
+#pragma mark manage messege
 - (void)sendMessage:(NSString *)string{
-    loadingView = [[UIAlertView alloc] initWithTitle:@"Signing in\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
-    [loadingView show];
-    
-    
+    count = 0;
     if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
         [self.networkStream close];
     }
     
     [self initNetworkCommunication];
     
-//    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
+    //    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
     NSLog(@"I said: %@" , string);
-    lastRequest = [NSString stringWithFormat:@"%@",string];
 	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
+    
+}
+
+- (void)sendData:(NSData *)mydata{
+    if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
+        [self.networkStream close];
+    }
+    
+    [self initNetworkCommunication];
+	[self.networkStream write:[mydata bytes] maxLength:[mydata length]];
     
 }
 
@@ -261,15 +292,15 @@
     
 	//NSLog(@"stream event %i", eventCode);
     
+    //    static int c = 0;
     
 	switch (eventCode) {
 		case NSStreamEventHasBytesAvailable:
-            NSLog(@"RECEIVING");
             
 			if (aStream == self.fileStream) {
                 
                 uint8_t buffer[5000];
-				int len;
+				long len;
 				
 				while ([self.fileStream hasBytesAvailable]) {
 					len = [self.fileStream read:buffer maxLength:sizeof(buffer)];
@@ -286,34 +317,39 @@
 					}
 				}
                 
+                NSArray *array;
                 if (message != nil) {
-                    
-                    [loadingView dismissWithClickedButtonIndex:0 animated:YES];
-                    NSString *str = [[NSString alloc]initWithData:message encoding:NSASCIIStringEncoding];
-                    NSLog(@"string : %@",str);
-                    NSRange rng = [str rangeOfString:@"Signed in successfully.\n" options:0];
-                    if (rng.length > 0) {
-                        NSLog(@"Signed in successfully.");
-                        ViewController *view = [[ViewController alloc]init];
-                        view.uid = username.text;
-                        if (checkBoxSelected) {
-                            [[NSUserDefaults standardUserDefaults]setObject:username.text forKey:@"uid"];
-                            [[NSUserDefaults standardUserDefaults]synchronize];
-                        }
-                        [self presentViewController:view animated:YES completion:nil];
-                    }else{
-                        NSRange rng = [str rangeOfString:@"Username or password is not correct.\n" options:0];
-                        if (rng.length > 0) {
-                            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"ERROR!!" message:@"Username or password is not correct.\n" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
-                            [alert show];
-                        }else if(lastRequest != nil){
-                            NSRange rng = [str rangeOfString:@"Please repeat your request again!!!\n" options:0];
-                            if (rng.length > 0)
-                                [self sendMessage:lastRequest];
-                        }
+                    @try {
+                        array = [NSKeyedUnarchiver unarchiveObjectWithData:message];
+                        
                     }
-                    message = nil;
-                    
+                    @catch (NSException *exception) {
+                        NSLog(@"TRY unarchiveObjectWithData ERROR : %@",exception);
+                    }
+                    @finally{
+                        if (array == nil) {
+                            NSString *str = [[NSString alloc]initWithData:message encoding:NSASCIIStringEncoding];
+                            NSLog(@"string : %@",str);
+                            
+                            if (count > 0) {
+                                return;
+                            }
+                            
+                            NSRange rng = [str rangeOfString:@"Please repeat your request again!!!\n" options:0];
+                            if (rng.length > 0){
+                                [self sendMessage:lastRequest];
+                            }
+                        }else{
+                            NSLog(@"array : %@",array);
+                            if ([[array objectAtIndex:0]isEqualToString:@"getAllStockList"]) {
+                                stockList = nil;
+                                stockList = [[NSMutableArray alloc]initWithArray:[array objectAtIndex:1]];
+                                [table reloadData];
+                                count++;
+                            }
+                        }
+                        message = nil;
+                    }
                 }
 			}
 			break;
@@ -321,10 +357,12 @@
         case NSStreamEventHasSpaceAvailable:
             break;
 		default:
+            //			NSLog(@"Unknown event %@,%@",aStream,inputStream);
             break;
             
 	}
 }
+
 
 #pragma mark * Status management
 
@@ -378,7 +416,6 @@
 }
 - (void)receiveDidStart
 {
-    NSLog( @"Receiving" );
     [[NetworkManager sharedInstance] didStartNetworkOperation];
 }
 - (void)receiveDidStopWithStatus:(NSString *)statusString
@@ -396,8 +433,8 @@
     
     assert(fd >= 0);
     
-
-    [self.fileStream open];
+    
+    //    [self.fileStream open];
     
     // Open a stream based on the existing socket file descriptor.  Then configure
     // the stream for async operation.
@@ -448,19 +485,6 @@
 }
 - (void)acceptConnection:(int)fd
 {
-//    int     junk;
-//    
-//    // If we already have a connection, reject this new one.  This is one of the
-//    // big simplifying assumptions in this code.  A real server should handle
-//    // multiple simultaneous connections.
-//    
-//    if ( self.isReceiving ) {
-//        junk = close(fd);
-//        assert(junk == 0);
-//    } else {
-//        [self startReceive:fd];
-//    }
-    
     [self startReceive:fd];
 }
 
@@ -468,9 +492,8 @@ static void AcceptCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef a
 // Called by CFSocket when someone connects to our listening socket.
 // This implementation just bounces the request up to Objective-C.
 {
-    NSLog(@"AcceptCallback");
     
-    LogInViewController  *  obj;
+    HandleStockListViewController  *  obj;
     
 #pragma unused(type)
     assert(type == kCFSocketAcceptCallBack);
@@ -478,7 +501,7 @@ static void AcceptCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef a
     // assert(address == NULL);
     assert(data != NULL);
     
-    obj = (__bridge LogInViewController *) info;
+    obj = (__bridge HandleStockListViewController *) info;
     assert(obj != nil);
     
     assert(s == obj->_listeningSocket);
@@ -552,7 +575,7 @@ static void AcceptCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef a
     if (success) {
         CFSocketContext context = { 0, (__bridge void *) self, NULL, NULL, NULL };
         
-        assert(self->_listeningSocket == NULL);
+//        assert(self->_listeningSocket == NULL);
         self->_listeningSocket = CFSocketCreateWithNative(
                                                           NULL,
                                                           fd,
@@ -620,6 +643,10 @@ static void AcceptCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef a
         self->_listeningSocket = NULL;
     }
     [self serverDidStopWithReason:reason];
+}
+- (BOOL)isSending
+{
+    return (self.networkStream != nil);
 }
 
 

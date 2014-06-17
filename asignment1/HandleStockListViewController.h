@@ -1,26 +1,16 @@
 //
-//  ViewController.h
-//  ProfilerClock
+//  HandleStockListViewController.h
+//  asignment1
 //
-//  Created by miang on 4/4/14.
-//  Copyright (c) 2014 miang. All rights reserved.
+//  Created by miang on 6/13/2557 BE.
+//  Copyright (c) 2557 miang. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
-#import "LogInViewController.h"
 
-@interface ViewController : UIViewController<UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,UIGestureRecognizerDelegate,NSStreamDelegate,NSNetServiceDelegate>
-
-
+@interface HandleStockListViewController : UIViewController<NSStreamDelegate,NSNetServiceDelegate,UITableViewDataSource,UITableViewDelegate>
 @property NSString *uid;
-@property NSArray *csv;
-@property UITableView *table;
-@property UITextField *txt;
-@property NSMutableArray *csvArr;
-@property NSMutableArray *nameArr;
 @property int stockListNO;
-@property int totalList;
-
 @property (nonatomic, assign, readonly ) BOOL               isStarted;
 @property (nonatomic, assign, readonly ) BOOL               isReceiving;
 @property (nonatomic, strong, readwrite) NSNetService *     netService;
@@ -33,8 +23,8 @@
 @property (nonatomic, assign, readwrite) size_t             bufferLimit;
 
 @property (copy) NSData  *data ;
+@property UITableView *table;
 
 - (void) sendMessage:(NSString *)string;
--(void) retrieveData:(NSURL *)url;
 
 @end

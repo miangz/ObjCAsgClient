@@ -11,6 +11,7 @@
 #import "EditViewController.h"
 #import "StocklistViewController.h"
 #import "DetailViewController.h"
+#import "HandleStockListViewController.h"
 
 #import "NetworkManager.h"
 #import "QNetworkAdditions.h"
@@ -24,6 +25,7 @@
 @end
 
 @implementation ViewController{
+    UIAlertView *loadingView;
     int count;
     BOOL editMode;
     UIButton *doneBT;
@@ -51,9 +53,12 @@
 @synthesize bufferLimit   = _bufferLimit;
 @synthesize data;
 
+
+#pragma mark manage load view
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
     
     count = 0;
     editMode = NO;
@@ -141,8 +146,11 @@
 
 
 -(void)viewDidAppear:(BOOL)animated{
+    loadingView = [[UIAlertView alloc] initWithTitle:@"Loading stock list\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
+    [loadingView show];
     [self startServer];
     count++;
+    
     [self loadNewStockList];
 }
 
@@ -160,6 +168,7 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark manage stockList
 -(void)loadNewStockList{
     [t invalidate];
     t = nil;
@@ -176,22 +185,24 @@
     
     [t invalidate];
     t = nil;
-    NSMutableString *nameStr = [[NSMutableString alloc]init];
-    for (int i = 0 ; i<nameArr.count; i++) {
-        if (i>0) {
-            [nameStr appendString:@"+"];
-        }
-        [nameStr appendString:[nameArr objectAtIndex:i]];
-    }
     
     NSLog(@"load new data");
+    if (nameArr.count == 0 && nameArr == nil) {
+        [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
+    }else{
+        NSMutableString *nameStr = [[NSMutableString alloc]init];
+        for (int i = 0 ; i<nameArr.count; i++) {
+            if (i>0) {
+                [nameStr appendString:@"+"];
+            }
+            [nameStr appendString:[nameArr objectAtIndex:i]];
+        }
+        
+        [self sendMessage:[NSString stringWithFormat:@"getTheseStock:%@",nameStr]];
+    }
+    
     csvArr = nil;
     nameArr = nil;
-    [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
-//    [s addObject:@"updateArray"];
-//    [self sendMessage:[NSString stringWithFormat:@"getTheseStock:%@",nameStr]];
-//    NSLog(@"nameStr : %@",nameStr);
-    
     
     stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
     t = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self
@@ -208,8 +219,14 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
+    if (count == 0) {
+        return 0;
+    }
+    if (csvArr.count == 0) {
+        return 1;
+    }
     
-    
+    [loadingView dismissWithClickedButtonIndex:0 animated:YES];
     return csvArr.count;
 }
 
@@ -219,15 +236,19 @@
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier ];
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] ;
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     
     //    NSLog(@"indexPath : %d csv : %@",indexPath.row,csv);
     
     if (csvArr.count == 0 ) {
+        cell.detailTextLabel.font = [UIFont systemFontOfSize:14];
+        cell.detailTextLabel.text = @"Don't have any stock? add new one ^";
+        cell.backgroundColor = [UIColor lightGrayColor];
+        
         return cell;
     }
+    
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     
     NSArray *arr = [csvArr objectAtIndex:indexPath.row] ;
     
@@ -252,7 +273,6 @@
     }
     cell.detailTextLabel.text = [NSString stringWithFormat:@"%@\t%@\t%@%%\t%@",[arr objectAtIndex:2],[arr objectAtIndex:3],change,[arr objectAtIndex:5]];
     cell.detailTextLabel.textColor = [UIColor darkTextColor];
-    
     return cell;
 }
 
@@ -342,6 +362,8 @@
 }
 
 -(void)submitted{
+    loadingView = [[UIAlertView alloc] initWithTitle:@"Loading stock list\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
+    [loadingView show];
     if ([nameArr containsObject:txt.text]) {
         NSLog(@"\nnameArr : %@\ncsvArr : %@\nstockNO : %d\ntotalNO : %d",nameArr,csvArr,stockListNO,totalList);
         UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"ERROR" message:@"This stock is already in your list" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil ];
@@ -355,7 +377,10 @@
 }
 
 -(void)editArr{
-    StocklistViewController *s = [[StocklistViewController alloc]init];
+//    StocklistViewController *s = [[StocklistViewController alloc]init];
+    HandleStockListViewController *s = [[HandleStockListViewController alloc]init];
+    s.uid = uid;
+    s.stockListNO = stockListNO;
     [self presentViewController:s animated:NO completion:nil];
 }
 
@@ -388,7 +413,7 @@
 
 -(void)signOut{
     [[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"uid"];
-    
+    [[NSUserDefaults standardUserDefaults]synchronize];
     LogInViewController *lView = [[LogInViewController alloc]init];
     [self presentViewController:lView animated:NO completion:nil];
 }
@@ -596,9 +621,10 @@
                            
                             
                             NSString *str = [array firstObject];
-                            if ([str isEqualToString:@"getStockInfoOfUid"] ) {
-                                NSLog(@"getStockInfoOfUid");
+                            if ([str isEqualToString:@"getStockInfoOfUid"]) {
                                 
+                                [loadingView dismissWithClickedButtonIndex:0 animated:YES];
+                                NSLog(@"getStockInfoOfUid");
                                 totalList = [[array lastObject]intValue];
                                 [nameArr removeAllObjects];
                                 [csvArr removeAllObjects];
@@ -611,30 +637,30 @@
                                     }
                                 }
                                 
+                            }else if ([str isEqualToString:@"getTheseStock"]) {
+                                [loadingView dismissWithClickedButtonIndex:0 animated:YES];
+                                NSLog(@"getStockInfoOfUid");
+                                [nameArr removeAllObjects];
+                                [csvArr removeAllObjects];
+                                for (int i = 1; i < array.count ; i++) {
+                                    NSRange r = NSMakeRange(1, [[[array objectAtIndex:i] objectAtIndex:0]length]-2);
+                                    NSString *nameStock = [[[array objectAtIndex:i] objectAtIndex:0]substringWithRange:r];
+                                    if (![nameArr containsObject:[[array objectAtIndex:i] objectAtIndex:0]]) {
+                                        [nameArr insertObject:nameStock atIndex:0];
+                                        [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
+                                    }
+                                }
+                                
                             }
-//                            else if ([str isEqualToString:@"getTheseStock"]) {
-//                                NSLog(@"getTheseStock");
-//                                [nameArr removeAllObjects];
-//                                [csvArr removeAllObjects];
-//                                for (int i = 1; i < array.count ; i++) {
-//                                    NSRange r = NSMakeRange(1, [[[array objectAtIndex:i] objectAtIndex:0]length]-2);
-//                                    NSString *nameStock = [[[array objectAtIndex:i] objectAtIndex:0]substringWithRange:r];
-//                                    
-//                                    if (![nameArr containsObject:[[array objectAtIndex:i] objectAtIndex:0]]) {
-//                                        [nameArr insertObject:nameStock atIndex:0];
-//                                        [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
-//                                    }
-//                                }
-//                                
-//                            }
                             else{//modifyStock
                                 NSLog(@"else");
-                                if(array.count>1 && ((int)[[array objectAtIndex:0]length])-2 > 0){
-                                    NSRange r = NSMakeRange(1, [[array objectAtIndex:0]length]-2);
-                                    NSString *nameStock = [[array objectAtIndex:0]substringWithRange:r];
+                                NSArray *a = [array objectAtIndex:1];
+                                if(a.count>1 && ((int)[[a objectAtIndex:0]length])-2 > 0){
+                                    NSRange r = NSMakeRange(1, [[a objectAtIndex:0]length]-2);
+                                    NSString *nameStock = [[a objectAtIndex:0]substringWithRange:r];
                                     if (![nameArr containsObject:nameStock]) {
                                         [nameArr insertObject:txt.text atIndex:0];
-                                        [csvArr insertObject:array atIndex:0];
+                                        [csvArr insertObject:a atIndex:0];
                                     }
                                 }
                             }
@@ -950,6 +976,10 @@ static void AcceptCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef a
     [self serverDidStopWithReason:reason];
 }
 
+- (BOOL)isSending
+{
+    return (self.networkStream != nil);
+}
 
 #pragma mark - UITextFieldDelegate
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -963,10 +993,6 @@ static void AcceptCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef a
     [txt resignFirstResponder];
 }
 
-- (BOOL)isSending
-{
-    return (self.networkStream != nil);
-}
 
 - (void)rightReload
 {

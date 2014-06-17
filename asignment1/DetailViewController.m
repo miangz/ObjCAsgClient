@@ -57,17 +57,31 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [self startServer];
     count = 0;
     isClosed = NO;
     if (self.ArrayOfValues == nil) {
         self.ArrayOfValues = [[NSMutableArray alloc]init];
     }
     
+    max = -1;
+    min = 99999999;
+    
     [self.ArrayOfValues addObject:[csv objectAtIndex:2]];
-    [self startServer];
+    [self.ArrayOfValues addObject:[csv objectAtIndex:2]];
+    NSString *value = [self.ArrayOfValues lastObject];
+    if (max<[value floatValue]) {
+        max = [value floatValue];
+        [self setupPlotSpace];
+    }
+    if (min>[value floatValue]) {
+        min = [value floatValue];
+        [self setupPlotSpace];
+    }
+    
     self.view.backgroundColor = [UIColor whiteColor];
     [self initData];
-    [self updateGraph];
+    [self initGraph];
 }
 
 -(void)viewDidDisappear:(BOOL)animated{
@@ -83,9 +97,7 @@
     // Dispose of any resources that can be recreated.
 }
 -(void)back{
-    
     [self dismissViewControllerAnimated:NO completion:nil];
-    
 }
 -(void)updateGraph{
     if (isClosed == YES) {
@@ -229,8 +241,6 @@
 }
 
 -(void)updateData:(NSArray *)array{
-    NSLog(@"enter updateData");
-    
     //price
     NSRange rp = NSMakeRange(0, [[array objectAtIndex:2]length]);
     price.text = [NSString stringWithFormat:@"%@",[[array objectAtIndex:2]substringWithRange:rp]];
@@ -257,8 +267,6 @@
     }
     change.textColor = color;
     
-    NSLog(@"chang.txt : %@",change.text);
-    NSLog(@"last : %f , secondLast : %f",last,secondLast);
 }
 
 -(void)initGraph{
@@ -267,6 +275,7 @@
         NSLog(@"start load graph");
         
         [self createCorePlotGraph];
+        [self updateGraph];
         NSLog(@"end load graph");
         
         UITextField *txtMonth = [[UITextField alloc]initWithFrame:CGRectMake(self.view.frame.size.width-60, self.view.frame.size.height-10, 60, 10)];
@@ -274,6 +283,8 @@
         txtMonth.textColor = [UIColor whiteColor];
         txtMonth.text = @"avg 1 month";
         [self.view addSubview:txtMonth];
+        
+        
     });
 }
 
@@ -562,8 +573,6 @@
     
 	//NSLog(@"stream event %i", eventCode);
     
-    //    static int c = 0;
-    
 	switch (eventCode) {
 		case NSStreamEventHasBytesAvailable:
             NSLog(@"RECEIVING");
@@ -616,20 +625,18 @@
                             }
                             NSArray *dataOfStock = [array objectAtIndex:1];
                             [self.ArrayOfValues addObject:[dataOfStock objectAtIndex:2]];
-                            
-                            if (count == 0) {
-                                max = -1;
-                                min = 99999999;
-                            }
+//                            
+//                            if (count == 0) {
+//                                max = -1;
+//                                min = 99999999;
+//                            }
                             NSString *value = [self.ArrayOfValues lastObject];
                             if (max<[value floatValue]) {
                                 max = [value floatValue];
-                                NSLog(@"max : %f",max);
                                 [self setupPlotSpace];
                             }
                             if (min>[value floatValue]) {
                                 min = [value floatValue];
-                                NSLog(@"min : %f",min);
                                 [self setupPlotSpace];
                             }
                             
@@ -637,15 +644,15 @@
                                 [self.ArrayOfValues removeObjectAtIndex:0];
                             }
                             if (count == 0) {
-                                [self initGraph];
+//                                [self initGraph];
                                 count++;
                             }
-                            else{
-                                [self updateData:[array objectAtIndex:1]];
-                                [graph reloadData];
-                            }
+                            [self updateData:[array objectAtIndex:1]];
+                            [graph reloadData];
+                            
+                            [t invalidate];
                             t = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(updateGraph) userInfo:nil repeats:NO];
-                            NSLog(@"self.ArrayOfValues : %@",self.ArrayOfValues);
+//                            NSLog(@"self.ArrayOfValues : %@",self.ArrayOfValues);
                         }
                         message = nil;
                     }

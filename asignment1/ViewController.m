@@ -277,6 +277,9 @@
 }
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (csvArr.count == 0) {
+        return NO;
+    }
     if (indexPath.row == 0) // Don't move the first row
         return NO;
     return YES;
@@ -299,12 +302,25 @@
     
     [table reloadData];
 }
-
+- (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editMode == NO) {
+        return UITableViewCellEditingStyleNone;
+    }
+    // Detemine if it's in editing mode
+//    if (csvArr.count == 0 )
+//    {
+//        return UITableViewCellEditingStyleNone;
+//    }
+    return UITableViewCellEditingStyleDelete;
+}
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath { //implement the delegate method
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Update data source array here, something like [array removeObjectAtIndex:indexPath.row];
-        
+        if (csvArr.count == 0) {
+            return;
+        }
         
         NSString *string = [NSString stringWithFormat:@"removeStock:%@:%@:%d",uid,[nameArr objectAtIndex:indexPath.row],stockListNO];
         
@@ -365,14 +381,14 @@
     loadingView = [[UIAlertView alloc] initWithTitle:@"Loading stock list\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
     [loadingView show];
     if ([nameArr containsObject:txt.text]) {
-        NSLog(@"\nnameArr : %@\ncsvArr : %@\nstockNO : %d\ntotalNO : %d",nameArr,csvArr,stockListNO,totalList);
+//        NSLog(@"\nnameArr : %@\ncsvArr : %@\nstockNO : %d\ntotalNO : %d",nameArr,csvArr,stockListNO,totalList);
         UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"ERROR" message:@"This stock is already in your list" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil ];
         [alert show];
     }
     
-    NSLog(@"nameArr : %@",nameArr);
+//    NSLog(@"nameArr : %@",nameArr);
     NSString *name = [NSString stringWithFormat:@"modifyStock:%@:%@:%d",uid,txt.text,stockListNO];
-    NSLog(@"name: %@",name);
+//    NSLog(@"name: %@",name);
     [self sendMessage:name];
 }
 
@@ -385,7 +401,13 @@
 }
 
 -(void)reorder{
+    if (csvArr.count == 0) {
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"Don't have stock to edit!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+        [alert show];
+        return;
+    }
     if (editMode == YES) {
+        [self loadNewStockList];
         editMode = NO;
         table.editing = NO;
         doneBT.hidden = YES;
@@ -605,10 +627,14 @@
                             NSRange rng = [str rangeOfString:@"stock not found" options:0];
                             if (rng.length > 0) {
                                 NSLog(@"stock not found");
+                                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning!!" message:@"stock not found" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+                                [alert show];
+                                message = nil;
                             }else if(lastRequest !=nil){
                                 NSRange rng = [str rangeOfString:@"Please repeat your request again!!!\n" options:0];
                                 if (rng.length > 0)
                                     [self sendMessage:lastRequest];
+                                message = nil;
                             }
                         }else{
                             NSLog(@"array : %@",array);
@@ -664,6 +690,7 @@
                                     }
                                 }
                             }
+                            
                             [table reloadData];
                             
                             [t invalidate];
@@ -671,8 +698,8 @@
                             t = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self
                                                            selector:@selector(reloadStockList) userInfo:nil repeats:NO];
                             
+                            message = nil;
                         }
-                        message = nil;
                     }
                 }
 			}

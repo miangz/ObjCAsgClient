@@ -5,7 +5,7 @@
 //  Created by miang on 6/13/2557 BE.
 //  Copyright (c) 2557 miang. All rights reserved.
 //
-
+#import "ViewController.h"
 #import "HandleStockListViewController.h"
 #import "NetworkManager.h"
 #import "QNetworkAdditions.h"
@@ -135,7 +135,15 @@
 }
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath {
-    
+    int source = sourceIndexPath.row;
+    int des = destinationIndexPath.row;
+    if (source == stockListNO) {
+        stockListNO = destinationIndexPath.row;
+    }else if(source < stockListNO && des > stockListNO){
+        stockListNO--;
+    }else if(source > stockListNO && des <= stockListNO){
+        stockListNO++;
+    }
     NSString *change = [stockList objectAtIndex:sourceIndexPath.row];
     [stockList removeObjectAtIndex:sourceIndexPath.row];
     [stockList insertObject:change atIndex:destinationIndexPath.row];
@@ -148,6 +156,8 @@
             UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"You can't delete the viewing list" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
             [alert show];
             return;
+        }else if(indexPath.row < stockListNO){
+            stockListNO--;
         }
         NSString *string = [NSString stringWithFormat:@"removeList:%@:%d",uid,indexPath.row];
         [self sendMessage:string];
@@ -160,7 +170,11 @@
 #pragma mark - UITableViewDelegate
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-    
+    if (indexPath.row == stockListNO) {
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"You can't delete the viewing list" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+        [alert show];
+        return;
+    }
     if([myIndexPath containsObject: indexPath] ){
         UITableViewCell *formerSelectedcell = [tableView cellForRowAtIndexPath:indexPath];
         // finding the already selected cell
@@ -193,8 +207,11 @@
 #pragma mark manage button
 
 -(void)back{
-    [self dismissViewControllerAnimated:YES completion:nil];
-    
+//    [self dismissViewControllerAnimated:YES completion:nil];
+    ViewController *view = [[ViewController alloc]init];
+    view.uid = uid;
+    view.stockListNO = stockListNO;
+    [self presentViewController:view animated:YES completion:nil];
 }
 
 -(void)reorder{
@@ -212,18 +229,16 @@
 -(void)removeCell{
     NSMutableString *string = [[NSMutableString alloc]initWithString:@"removeList:"];
     [string appendString:uid];
+    [string appendString:@":"];
     for (int i=myIndexPath.count-1; i>=0; i--) {
-        if ([[myIndexPath objectAtIndex:i]row] == stockListNO) {
-            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"You can't delete the viewing list" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
-            [alert show];
-            return;
-        }
-        [stockList removeObjectAtIndex:i];
+        NSIndexPath *index = [myIndexPath objectAtIndex:i];
+        [stockList removeObjectAtIndex:index.row];
         if (i != myIndexPath.count-1) {
             [string appendString:@"+"];
         }
-        
-        NSIndexPath *index = [myIndexPath objectAtIndex:i];
+        if (index.row < stockListNO) {
+            stockListNO--;
+        }
         [string appendString:[NSString stringWithFormat:@"%d",index.row]];
         if (i == 0) {
             [myIndexPath removeAllObjects];

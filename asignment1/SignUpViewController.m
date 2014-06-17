@@ -34,6 +34,8 @@
     
     NSMutableData *message;
     UIAlertView *loadingView;
+    
+    NSString *lastRequest;
 }
 
 @synthesize networkStream = _networkStream;
@@ -277,6 +279,8 @@
     
     //    NSString *s = [[NSString alloc]initWithFormat:@"%@\n",string];
     NSLog(@"I said: %@" , string);
+    lastRequest = nil;
+    lastRequest = [[NSString alloc]initWithString:string];
 	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
     
@@ -339,10 +343,14 @@
                     [loadingView dismissWithClickedButtonIndex:0 animated:YES];
                     NSString *str = [[NSString alloc]initWithData:message encoding:NSASCIIStringEncoding];
                     NSLog(@"string : %@",str);
-                    NSRange rng = [str rangeOfString:@"Added successfully." options:0];
+                    NSRange rng = [str rangeOfString:@"Added successfully.\n" options:0];
                     if (rng.length > 0) {
                         NSLog(@"added");
                         [self close];
+                    }else if(lastRequest !=nil){
+                        NSRange rng = [str rangeOfString:@"Please repeat your request again!!!\n" options:0];
+                        if (rng.length > 0)
+                            [self sendMessage:lastRequest];
                     }else{
                         NSRange rng = [str rangeOfString:@"Someone already has that username. Try another!" options:0];
                         if (rng.length > 0) {

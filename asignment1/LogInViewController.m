@@ -146,6 +146,8 @@
     [self startServer];
 }
 -(void)viewDidDisappear:(BOOL)animated{
+    [self.fileStream close];
+    [self.networkStream close];
     [self stopServer:nil];
 }
 - (void)didReceiveMemoryWarning
@@ -347,7 +349,6 @@
     }
     [[NetworkManager sharedInstance] didStopNetworkOperation];
 }
-
 - (void)stopSendWithStatus:(NSString *)statusString
 {
     if (self.networkStream != nil) {
@@ -396,7 +397,7 @@
     
     assert(fd >= 0);
     
-
+    
     [self.fileStream open];
     
     // Open a stream based on the existing socket file descriptor.  Then configure
@@ -448,19 +449,6 @@
 }
 - (void)acceptConnection:(int)fd
 {
-//    int     junk;
-//    
-//    // If we already have a connection, reject this new one.  This is one of the
-//    // big simplifying assumptions in this code.  A real server should handle
-//    // multiple simultaneous connections.
-//    
-//    if ( self.isReceiving ) {
-//        junk = close(fd);
-//        assert(junk == 0);
-//    } else {
-//        [self startReceive:fd];
-//    }
-    
     [self startReceive:fd];
 }
 
@@ -622,5 +610,11 @@ static void AcceptCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef a
     [self serverDidStopWithReason:reason];
 }
 
+- (BOOL)isSending
+{
+    return (self.networkStream != nil);
+}
+
 
 @end
+

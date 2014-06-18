@@ -165,6 +165,8 @@
     [self startServer];
 }
 -(void)viewDidDisappear:(BOOL)animated{
+    [self.fileStream close];
+    [self.networkStream close];
     [self stopServer:nil];
 }
 - (void)didReceiveMemoryWarning
@@ -265,10 +267,6 @@
 - (void)sendMessage:(NSString *)string{
     loadingView = [[UIAlertView alloc] initWithTitle:@"Creating an account\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
     [loadingView show];
-    UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-    indicator.center = CGPointMake(loadingView.bounds.size.width / 2, loadingView.bounds.size.height - 50);
-    [indicator startAnimating];
-    [loadingView addSubview:indicator];
     
     
     if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
@@ -318,6 +316,9 @@
 		case NSStreamEventHasBytesAvailable:
             NSLog(@"NSStreamEventHasBytesAvailable");
             
+            [loadingView dismissWithClickedButtonIndex:0 animated:YES];
+            message = nil;
+            
 			if (aStream == self.fileStream) {
                 
                 uint8_t buffer[5000];
@@ -340,7 +341,6 @@
                 
                 if (message != nil) {
                     
-                    [loadingView dismissWithClickedButtonIndex:0 animated:YES];
                     NSString *str = [[NSString alloc]initWithData:message encoding:NSASCIIStringEncoding];
                     NSLog(@"string : %@",str);
                     NSRange rng = [str rangeOfString:@"Added successfully.\n" options:0];
@@ -358,10 +358,13 @@
                             [alert show];
                         }
                     }
-                    message = nil;
                     
+                }else{
+                    NSLog(@"message == nil");
                 }
-			}
+			}else{
+                NSLog(@"not self.filestream");
+            }
 			break;
             
         case NSStreamEventHasSpaceAvailable:
@@ -495,18 +498,7 @@
 }
 - (void)acceptConnection:(int)fd
 {
-    int     junk;
-    
-    // If we already have a connection, reject this new one.  This is one of the
-    // big simplifying assumptions in this code.  A real server should handle
-    // multiple simultaneous connections.
-    
-    if ( self.isReceiving ) {
-        junk = close(fd);
-        assert(junk == 0);
-    } else {
-        [self startReceive:fd];
-    }
+    [self startReceive:fd];
 }
 
 static void AcceptCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef address, const void *data, void *info)

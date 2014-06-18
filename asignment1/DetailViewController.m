@@ -88,6 +88,8 @@
     [t invalidate];
     t = nil;
     isClosed = YES;
+    [self.fileStream close];
+    [self.networkStream close];
     [self stopServer:nil];
 }
 
@@ -278,11 +280,11 @@
         [self updateGraph];
         NSLog(@"end load graph");
         
-        UITextField *txtMonth = [[UITextField alloc]initWithFrame:CGRectMake(self.view.frame.size.width-60, self.view.frame.size.height-10, 60, 10)];
-        txtMonth.font = [UIFont boldSystemFontOfSize:10];
-        txtMonth.textColor = [UIColor whiteColor];
-        txtMonth.text = @"avg 1 month";
-        [self.view addSubview:txtMonth];
+//        UITextField *txtMonth = [[UITextField alloc]initWithFrame:CGRectMake(self.view.frame.size.width-60, self.view.frame.size.height-10, 60, 10)];
+//        txtMonth.font = [UIFont boldSystemFontOfSize:10];
+//        txtMonth.textColor = [UIColor whiteColor];
+//        txtMonth.text = @"avg 1 month";
+//        [self.view addSubview:txtMonth];
         
         
     });
@@ -295,7 +297,8 @@
     graph = [[CPTXYGraph alloc] initWithFrame:CGRectZero];
     CPTTheme *theme = [CPTTheme themeNamed:kCPTDarkGradientTheme];
     [graph applyTheme:theme];
-    CPTGraphHostingView *hostingView = [[CPTGraphHostingView alloc]initWithFrame:CGRectMake(0, 280, 320, 200)];//self.view.frame.size.width, self.view.frame.size.height)];//(CPTGraphHostingView *)self.view;
+    float h = self.view.frame.size.height - 480;
+    CPTGraphHostingView *hostingView = [[CPTGraphHostingView alloc]initWithFrame:CGRectMake(0, 280, 320, 200+h)];//self.view.frame.size.width, self.view.frame.size.height)];//(CPTGraphHostingView *)self.view;
     hostingView.collapsesLayers = NO; // Setting to YES reduces GPU memory usage, but can slow drawing/scrolling
 
     hostingView.hostedGraph     = graph;
@@ -620,6 +623,11 @@
                             }
                         }else if([[array objectAtIndex:0]isEqualToString:@"getStockDetail"]){
                             NSLog(@"array :%@",array);
+                            NSString *ticker = [[[array objectAtIndex:1]objectAtIndex:0] substringFromIndex:1];
+                            NSString *cutTicker = [NSString stringWithFormat:@"%@",[ticker substringToIndex:ticker.length-1]];
+                            if (![cutTicker isEqualToString:stockName]) {
+                                return;
+                            }
                             if (self.ArrayOfValues == nil) {
                                 self.ArrayOfValues = [[NSMutableArray alloc]init];
                             }

@@ -59,6 +59,8 @@
 {
     [super viewDidLoad];
     
+    loadingView = [[UIAlertView alloc] initWithTitle:@"Loading stock list\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
+    [loadingView show];
     
     count = 0;
     editMode = NO;
@@ -146,8 +148,6 @@
 
 
 -(void)viewDidAppear:(BOOL)animated{
-    loadingView = [[UIAlertView alloc] initWithTitle:@"Loading stock list\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
-    [loadingView show];
     [self startServer];
     count++;
     
@@ -173,8 +173,8 @@
     [t invalidate];
     t = nil;
     NSLog(@"load new data");
-    csvArr = nil;
-    nameArr = nil;
+//    csvArr = nil;
+//    nameArr = nil;
     
     [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
 
@@ -201,11 +201,11 @@
         [self sendMessage:[NSString stringWithFormat:@"getTheseStock:%@",nameStr]];
     }
     
-    csvArr = nil;
-    nameArr = nil;
+//    csvArr = nil;
+//    nameArr = nil;
     
     stockListName.text = [NSString stringWithFormat:@"<< Stock List %d >>" , stockListNO+1];
-    t = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self
+    t = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self
                                        selector:@selector(reloadStockList) userInfo:nil repeats:NO];
 }
 
@@ -226,7 +226,7 @@
         return 1;
     }
     
-    [loadingView dismissWithClickedButtonIndex:0 animated:YES];
+//    [loadingView dismissWithClickedButtonIndex:0 animated:YES];
     return csvArr.count;
 }
 
@@ -287,6 +287,7 @@
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath {
     
+    
     NSArray *myCsv = [csvArr objectAtIndex:sourceIndexPath.row];
     [csvArr removeObjectAtIndex:sourceIndexPath.row];
     [csvArr insertObject:myCsv atIndex:destinationIndexPath.row];
@@ -296,24 +297,16 @@
     [nameArr insertObject:name atIndex:destinationIndexPath.row];
     
     
-    NSString *string = [NSString stringWithFormat:@"moveStock:%@:%d:%d:%d",uid,stockListNO,sourceIndexPath.row,destinationIndexPath.row];
+    NSString *string = [NSString stringWithFormat:@"moveStock:%@:%d:%d:%d",uid,stockListNO,csvArr.count-sourceIndexPath.row,csvArr.count-destinationIndexPath.row];
 
     [self sendMessage:string];
     
     [table reloadData];
 }
-- (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editMode == NO) {
-        return UITableViewCellEditingStyleNone;
-    }
-    // Detemine if it's in editing mode
-//    if (csvArr.count == 0 )
-//    {
-//        return UITableViewCellEditingStyleNone;
-//    }
-    return UITableViewCellEditingStyleDelete;
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return editMode;
 }
+
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath { //implement the delegate method
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
@@ -329,6 +322,7 @@
         [csvArr removeObjectAtIndex:indexPath.row];
         [nameArr removeObjectAtIndex:indexPath.row];
         [table reloadData];
+        
     }
 }
 
@@ -347,6 +341,11 @@
 
 #pragma mark - UIGestureRecognizerDelegate
 -(void)handleSwipeFrom:(id)sender {
+    if (editMode == YES) {
+        UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"You have to exit edit mode before change list!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
+        [alert show];
+        return;
+    }
     int swipe = 0;// 1 = left 2 = right
 //    NSArray *csvInit = [[NSArray alloc]initWithArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"csvArr"]];
     if(sender == recognizer2){
@@ -362,8 +361,12 @@
     }
     [txt resignFirstResponder];
     if (swipe>0) {
-        csvArr = nil;
-        nameArr = nil;
+//        csvArr = nil;
+//        nameArr = nil;
+        
+        loadingView = [[UIAlertView alloc] initWithTitle:@"Loading stock list\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
+        [loadingView show];
+        
        [self sendMessage:[NSString stringWithFormat:@"getStockInfoOfUid:%@:%d",uid,stockListNO]];
        
         csv = [NSMutableArray new];
@@ -401,7 +404,7 @@
 }
 
 -(void)reorder{
-    if (csvArr.count == 0) {
+    if (csvArr.count == 0 && editMode == NO) {
         UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Warning" message:@"Don't have stock to edit!" delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
         [alert show];
         return;
@@ -635,9 +638,13 @@
                                 if (rng.length > 0)
                                     [self sendMessage:lastRequest];
                                 message = nil;
+                            }else{
+                                if (lastRequest != nil) {
+                                    [self sendMessage:lastRequest];
+                                }
                             }
                         }else{
-                            NSLog(@"array : %@",array);
+//                            NSLog(@"array : %@",array);
                             if (nameArr == nil) {
                                 nameArr = [[NSMutableArray alloc]init];
                             }
@@ -647,8 +654,14 @@
                            
                             
                             NSString *str = [array firstObject];
-                            if ([str isEqualToString:@"getStockInfoOfUid"]) {
+                            if ([str length]>=17 && [[str substringToIndex:17] isEqualToString:@"getStockInfoOfUid"]) {
+                                NSString *s = [str substringFromIndex:18];
+                                if ([s intValue] != stockListNO) {
+                                    return;
+                                }
                                 
+                                NSLog(@"*******************************");
+                                NSLog(@"start update new stock list");
                                 [loadingView dismissWithClickedButtonIndex:0 animated:YES];
                                 NSLog(@"getStockInfoOfUid");
                                 totalList = [[array lastObject]intValue];
@@ -662,24 +675,20 @@
                                         [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
                                     }
                                 }
+                                NSLog(@"finished update new stock list");
                                 
                             }else if ([str isEqualToString:@"getTheseStock"]) {
-                                [loadingView dismissWithClickedButtonIndex:0 animated:YES];
-                                NSLog(@"getStockInfoOfUid");
-                                [nameArr removeAllObjects];
+//                                [loadingView dismissWithClickedButtonIndex:0 animated:YES];
+                                NSLog(@"getTheseStock");
                                 [csvArr removeAllObjects];
                                 for (int i = 1; i < array.count ; i++) {
-                                    NSRange r = NSMakeRange(1, [[[array objectAtIndex:i] objectAtIndex:0]length]-2);
-                                    NSString *nameStock = [[[array objectAtIndex:i] objectAtIndex:0]substringWithRange:r];
                                     if (![nameArr containsObject:[[array objectAtIndex:i] objectAtIndex:0]]) {
-                                        [nameArr insertObject:nameStock atIndex:0];
                                         [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
                                     }
                                 }
-                                
-                            }
-                            else{//modifyStock
+                            }else{//modifyStock
                                 NSLog(@"else");
+                                [loadingView dismissWithClickedButtonIndex:0 animated:YES];
                                 NSArray *a = [array objectAtIndex:1];
                                 if(a.count>1 && ((int)[[a objectAtIndex:0]length])-2 > 0){
                                     NSRange r = NSMakeRange(1, [[a objectAtIndex:0]length]-2);
@@ -690,8 +699,9 @@
                                     }
                                 }
                             }
-                            
-                            [table reloadData];
+                            if (editMode == NO) {
+                                [table reloadData];
+                            }
                             
                             [t invalidate];
                             t = nil;
@@ -706,13 +716,6 @@
 			break;
             
         case NSStreamEventHasSpaceAvailable:
-            //            if (aStream == outputStream) {
-            //                if (c == 0) {
-            //                    [self sendMessage:@"Hello\n"];
-            //                    c++;
-            //                }
-            //
-            //            }
             break;
 		default:
 //			NSLog(@"Unknown event %@,%@",aStream,inputStream);

@@ -109,7 +109,7 @@
     t = nil;
     
     [self sendMessage:[NSString stringWithFormat:@"getStockDetail:%@",stockName]];
-    t = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self selector:@selector(updateGraph) userInfo:nil repeats:NO];
+    t = [NSTimer scheduledTimerWithTimeInterval:7.0 target:self selector:@selector(updateGraph) userInfo:nil repeats:NO];
 }
 -(void)initData{
     
@@ -625,7 +625,7 @@
                             NSLog(@"array :%@",array);
                             NSString *ticker = [[[array objectAtIndex:1]objectAtIndex:0] substringFromIndex:1];
                             NSString *cutTicker = [NSString stringWithFormat:@"%@",[ticker substringToIndex:ticker.length-1]];
-                            if (![cutTicker isEqualToString:stockName]) {
+                            if (![[cutTicker lowercaseString] isEqualToString:[stockName lowercaseString]]) {
                                 return;
                             }
                             if (self.ArrayOfValues == nil) {
@@ -659,9 +659,13 @@
                             [graph reloadData];
                             
                             [t invalidate];
+                            t = nil;
                             t = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(updateGraph) userInfo:nil repeats:NO];
 //                            NSLog(@"self.ArrayOfValues : %@",self.ArrayOfValues);
                         }
+//                        else{
+//                            [self sendMessage:lastRequest];
+//                        }
                         message = nil;
                     }
                 }

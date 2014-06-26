@@ -678,14 +678,24 @@
                                 NSLog(@"finished update new stock list");
                                 
                             }else if ([str isEqualToString:@"getTheseStock"]) {
-//                                [loadingView dismissWithClickedButtonIndex:0 animated:YES];
+                                [loadingView dismissWithClickedButtonIndex:0 animated:YES];
                                 NSLog(@"getTheseStock");
-                                [csvArr removeAllObjects];
+                                NSMutableArray *checkArr = [[NSMutableArray alloc]init];
                                 for (int i = 1; i < array.count ; i++) {
-                                    if (![nameArr containsObject:[[array objectAtIndex:i] objectAtIndex:0]]) {
-                                        [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
+                                    NSRange r = NSMakeRange(1, [[[array objectAtIndex:i] objectAtIndex:0]length]-2);
+                                    NSString *nameStock = [[[array objectAtIndex:i] objectAtIndex:0]substringWithRange:r];
+                                    if (![checkArr containsObject:[[array objectAtIndex:i] objectAtIndex:0]]) {
+                                        [checkArr insertObject:nameStock atIndex:0];
                                     }
                                 }
+                                if ([checkArr isEqualToArray:nameArr]) {
+                                    [csvArr removeAllObjects];
+                                    for (int i = 1; i < array.count ; i++) {
+                                        if (![nameArr containsObject:[[array objectAtIndex:i] objectAtIndex:0]]) {
+                                            [csvArr insertObject:[array objectAtIndex:i] atIndex:0];
+                                        }
+                                    }
+                                }                                
                             }else{//modifyStock
                                 NSLog(@"else");
                                 [loadingView dismissWithClickedButtonIndex:0 animated:YES];
@@ -701,11 +711,12 @@
                             }
                             if (editMode == NO) {
                                 [table reloadData];
+                                NSLog(@"update");
                             }
                             
                             [t invalidate];
                             t = nil;
-                            t = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self
+                            t = [NSTimer scheduledTimerWithTimeInterval:1.8 target:self
                                                            selector:@selector(reloadStockList) userInfo:nil repeats:NO];
                             
                             message = nil;

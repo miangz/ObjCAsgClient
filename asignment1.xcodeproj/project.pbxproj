@@ -13,6 +13,7 @@
 		EB11A63718F6625E00B9E6D6 /* EditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB11A63618F6625E00B9E6D6 /* EditViewController.m */; };
 		EB15E8BA1920D4800071A5C1 /* NetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EB15E8B71920D4800071A5C1 /* NetworkManager.m */; };
 		EB15E8BB1920D4800071A5C1 /* QNetworkAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = EB15E8B91920D4800071A5C1 /* QNetworkAdditions.m */; };
+		EB1A2F8C195BC86C00557DBF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB7FA3A518F4125000B08F3C /* Main.storyboard */; };
 		EB1A7F2A18FE9C4500EAAB04 /* DetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB1A7F2918FE9C4500EAAB04 /* DetailViewController.m */; };
 		EB22FCEE1919DEEA00EFD344 /* checked.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB22FCED1919DEEA00EFD344 /* checked.jpg */; };
 		EB22FCF01919DEF800EFD344 /* unchecked.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB22FCEF1919DEF800EFD344 /* unchecked.jpg */; };
@@ -22,13 +23,13 @@
 		EB3976D8190FA60800E5F1BB /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3976D7190FA60800E5F1BB /* Accelerate.framework */; };
 		EB3B8A0D18FE3309005930B0 /* StocklistViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB3B8A0C18FE3309005930B0 /* StocklistViewController.m */; };
 		EB4B65851918FF50003C058A /* LogInViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB4B65841918FF50003C058A /* LogInViewController.m */; };
+		EB67E23F195AC52A0017E408 /* File.c in Sources */ = {isa = PBXBuildFile; fileRef = EB67E23E195AC52A0017E408 /* File.c */; };
 		EB7FA39418F4125000B08F3C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA39318F4125000B08F3C /* Foundation.framework */; };
 		EB7FA39618F4125000B08F3C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA39518F4125000B08F3C /* CoreGraphics.framework */; };
 		EB7FA39818F4125000B08F3C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA39718F4125000B08F3C /* UIKit.framework */; };
 		EB7FA39E18F4125000B08F3C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB7FA39C18F4125000B08F3C /* InfoPlist.strings */; };
 		EB7FA3A018F4125000B08F3C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7FA39F18F4125000B08F3C /* main.m */; };
 		EB7FA3A418F4125000B08F3C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7FA3A318F4125000B08F3C /* AppDelegate.m */; };
-		EB7FA3A718F4125000B08F3C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB7FA3A518F4125000B08F3C /* Main.storyboard */; };
 		EB7FA3AC18F4125000B08F3C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EB7FA3AB18F4125000B08F3C /* Images.xcassets */; };
 		EB7FA3B318F4125000B08F3C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA3B218F4125000B08F3C /* XCTest.framework */; };
 		EB7FA3B418F4125000B08F3C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA39318F4125000B08F3C /* Foundation.framework */; };
@@ -101,6 +102,7 @@
 		EB3B8A0C18FE3309005930B0 /* StocklistViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StocklistViewController.m; sourceTree = "<group>"; };
 		EB4B65831918FF50003C058A /* LogInViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogInViewController.h; sourceTree = "<group>"; };
 		EB4B65841918FF50003C058A /* LogInViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogInViewController.m; sourceTree = "<group>"; };
+		EB67E23E195AC52A0017E408 /* File.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = File.c; sourceTree = "<group>"; };
 		EB7FA39018F4125000B08F3C /* asignment1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = asignment1.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB7FA39318F4125000B08F3C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		EB7FA39518F4125000B08F3C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -238,6 +240,7 @@
 				EB9438251910B34500B4CB1E /* CorePlot-CocoaTouch.xcodeproj */,
 				EB7FA3A218F4125000B08F3C /* AppDelegate.h */,
 				EB7FA3A318F4125000B08F3C /* AppDelegate.m */,
+				EB67E23E195AC52A0017E408 /* File.c */,
 				EB7FA3A518F4125000B08F3C /* Main.storyboard */,
 				EB4B65831918FF50003C058A /* LogInViewController.h */,
 				EB4B65841918FF50003C058A /* LogInViewController.m */,
@@ -444,10 +447,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB1A2F8C195BC86C00557DBF /* Main.storyboard in Resources */,
 				EB7FA3AC18F4125000B08F3C /* Images.xcassets in Resources */,
 				EB7FA39E18F4125000B08F3C /* InfoPlist.strings in Resources */,
 				EB22FCEE1919DEEA00EFD344 /* checked.jpg in Resources */,
-				EB7FA3A718F4125000B08F3C /* Main.storyboard in Resources */,
 				EB22FCF01919DEF800EFD344 /* unchecked.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -479,6 +482,7 @@
 				EBF711B9190631DD00C2DAA3 /* BEMLine.m in Sources */,
 				EB7FA3CC18F4126100B08F3C /* ViewController.m in Sources */,
 				EBF711B7190631DD00C2DAA3 /* BEMAnimations.m in Sources */,
+				EB67E23F195AC52A0017E408 /* File.c in Sources */,
 				EB3B8A0D18FE3309005930B0 /* StocklistViewController.m in Sources */,
 				EB2AA6A3194AB74A000EAFB6 /* HandleStockListViewController.m in Sources */,
 				EB15E8BB1920D4800071A5C1 /* QNetworkAdditions.m in Sources */,

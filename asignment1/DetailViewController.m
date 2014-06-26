@@ -525,9 +525,12 @@
 
 
 - (void)sendMessage:(NSString *)string{
-    if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
-        [self.networkStream close];
-    }
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+        
+        if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
+            [self closeOutputStream];
+        }
     
     [self initNetworkCommunication];
     
@@ -536,12 +539,13 @@
     lastRequest = [[NSString alloc]initWithString:string];
 	NSData *data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
-    
+    });
 }
 
 - (void)sendData:(NSData *)mydata{
+    
     if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
-        [self.networkStream close];
+        [self closeOutputStream];
     }
     
     [self initNetworkCommunication];
@@ -561,6 +565,7 @@
     success = [netService qNetworkAdditions_getInputStream:NULL outputStream:&output];
     assert(success);
     
+    
     self.networkStream = output;
     self.networkStream.delegate = self;
     [self.networkStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
@@ -571,6 +576,13 @@
     
     [self sendDidStart];
     
+}
+- (void) closeOutputStream{
+    //Close and reset outputstream
+    [self.networkStream setDelegate:nil];
+    [self.networkStream close];
+    [self.networkStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    self.networkStream = nil;
 }
 -(void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode{
     

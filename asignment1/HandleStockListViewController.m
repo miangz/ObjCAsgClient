@@ -256,10 +256,13 @@
 
 #pragma mark manage messege
 - (void)sendMessage:(NSString *)string{
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     count = 0;
-    if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
-        [self.networkStream close];
-    }
+        
+        if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
+            [self closeOutputStream];
+        }
     
     [self initNetworkCommunication];
     
@@ -267,17 +270,19 @@
     NSLog(@"I said: %@" , string);
 	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
-    
+    });
 }
 
 - (void)sendData:(NSData *)mydata{
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
-        [self.networkStream close];
+        [self closeOutputStream];
     }
     
     [self initNetworkCommunication];
 	[self.networkStream write:[mydata bytes] maxLength:[mydata length]];
-    
+    });
 }
 
 - (void) initNetworkCommunication {
@@ -302,6 +307,13 @@
     
     [self sendDidStart];
     
+}
+- (void) closeOutputStream{
+    //Close and reset outputstream
+    [self.networkStream setDelegate:nil];
+    [self.networkStream close];
+    [self.networkStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    self.networkStream = nil;
 }
 -(void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode{
     

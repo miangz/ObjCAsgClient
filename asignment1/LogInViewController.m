@@ -218,13 +218,16 @@
 
 #pragma mark - NSStreamDelegate
 - (void)sendMessage:(NSString *)string{
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     loadingView = [[UIAlertView alloc] initWithTitle:@"Signing in\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
     [loadingView show];
     
     
-    if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
-        [self.networkStream close];
-    }
+        
+        if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
+            [self closeOutputStream];
+        }
     
     [self initNetworkCommunication];
     
@@ -233,7 +236,7 @@
     lastRequest = [NSString stringWithFormat:@"%@",string];
 	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
-    
+    });
 }
 
 - (void) initNetworkCommunication {
@@ -258,6 +261,13 @@
     
     [self sendDidStart];
     
+}
+- (void) closeOutputStream{
+    //Close and reset outputstream
+    [self.networkStream setDelegate:nil];
+    [self.networkStream close];
+    [self.networkStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    self.networkStream = nil;
 }
 -(void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode{
     

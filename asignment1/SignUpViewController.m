@@ -265,12 +265,15 @@
 
 #pragma mark - NSStreamDelegate
 - (void)sendMessage:(NSString *)string{
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     loadingView = [[UIAlertView alloc] initWithTitle:@"Creating an account\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
     [loadingView show];
     
     
+        
     if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
-        [self.networkStream close];
+        [self closeOutputStream];
     }
     
     [self initNetworkCommunication];
@@ -281,7 +284,7 @@
     lastRequest = [[NSString alloc]initWithString:string];
 	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
-    
+    });
 }
 
 - (void) initNetworkCommunication {
@@ -306,6 +309,13 @@
     
     [self sendDidStart];
     
+}
+- (void) closeOutputStream{
+    //Close and reset outputstream
+    [self.networkStream setDelegate:nil];
+    [self.networkStream close];
+    [self.networkStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    self.networkStream = nil;
 }
 -(void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode{
     

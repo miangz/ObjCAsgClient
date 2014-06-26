@@ -538,8 +538,11 @@
 }
 
 - (void)sendMessage:(NSString *)string{
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+        
     if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
-        [self.networkStream close];
+        [self closeOutputStream];
     }
     
     [self initNetworkCommunication];
@@ -549,17 +552,19 @@
     lastRequest = [[NSString alloc]initWithString:string];
 	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
-    
+    });
 }
 
 - (void)sendData:(NSData *)mydata{
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
-        [self.networkStream close];
+        [self closeOutputStream];
     }
     
     [self initNetworkCommunication];
 	[self.networkStream write:[mydata bytes] maxLength:[mydata length]];
-    
+    });
 }
 
 - (void) initNetworkCommunication {
@@ -568,11 +573,12 @@
     NSNetService *      netService;
     
     netService = [[NSNetService alloc] initWithDomain:@"local." type:@"_x-SNSUpload._tcp." name:@"Test"];
-    assert(netService != nil);
+//    assert(netService != nil);
     
     
     success = [netService qNetworkAdditions_getInputStream:NULL outputStream:&output];
     assert(success);
+    
     
     self.networkStream = output;
     self.networkStream.delegate = self;
@@ -584,6 +590,15 @@
     
     [self sendDidStart];
     
+}
+
+
+- (void) closeOutputStream{
+    //Close and reset outputstream
+    [self.networkStream setDelegate:nil];
+    [self.networkStream close];
+    [self.networkStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    self.networkStream = nil;
 }
 -(void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode{
     

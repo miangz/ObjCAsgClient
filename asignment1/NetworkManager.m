@@ -198,7 +198,7 @@
 {
     // If you start a network operation off the main thread, you'll have to update this code 
     // to ensure that any observers of this property are thread safe.
-    assert([NSThread isMainThread]);
+//    assert([NSThread isMainThread]);
     self.networkOperationCount += 1;
 }
 

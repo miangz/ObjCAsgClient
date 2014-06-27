@@ -121,11 +121,18 @@
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     UITableViewCell *cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
     NSString *str = [stockList objectAtIndex:indexPath.row];
-    if (str.length<8) {
+    
+    int l = 1;
+    int index = indexPath.row;
+    while (index>10) {
+        index /=10;
+        l++;
+    }
+    if (str.length<l+1) {
         cell.textLabel.text = @"This list is empty.";
         return cell;
     }
-    str = [str substringFromIndex:8];
+    str = [str substringFromIndex:l+1];
     cell.textLabel.text = [str stringByReplacingOccurrencesOfString:@"+" withString:@","];;
     
     return cell;
@@ -371,6 +378,18 @@
                             if ([[array objectAtIndex:0]isEqualToString:@"getAllStockList"]) {
                                 stockList = nil;
                                 stockList = [[NSMutableArray alloc]initWithArray:[array objectAtIndex:1]];
+                                
+                                //sort stocklist
+                                NSMutableArray *sortArr = [[NSMutableArray alloc]initWithArray:stockList];
+                                
+                                for (int n = 0; n<sortArr.count; n++) {
+                                    NSString *s = [sortArr objectAtIndex:n];
+                                    NSArray *a = [s componentsSeparatedByString:@"+"];
+                                    if (n != [[a objectAtIndex:0]intValue]) {
+                                        [stockList replaceObjectAtIndex:n withObject:[sortArr objectAtIndex:n]];
+                                    }
+                                }
+                                
                                 [table reloadData];
                                 count++;
                             }

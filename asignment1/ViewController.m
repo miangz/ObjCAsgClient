@@ -659,7 +659,7 @@
                                 }
                             }
                         }else{
-//                            NSLog(@"array : %@",array);
+                            NSLog(@"array : %@",array);
                             if (nameArr == nil) {
                                 nameArr = [[NSMutableArray alloc]init];
                             }

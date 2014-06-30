@@ -219,7 +219,8 @@
 #pragma mark - NSStreamDelegate
 - (void)sendMessage:(NSString *)string{
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     loadingView = [[UIAlertView alloc] initWithTitle:@"Signing in\nPlease Wait..." message:nil delegate:self cancelButtonTitle:nil otherButtonTitles: nil] ;
     [loadingView show];
     

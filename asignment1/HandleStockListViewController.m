@@ -385,8 +385,8 @@
                                 for (int n = 0; n<sortArr.count; n++) {
                                     NSString *s = [sortArr objectAtIndex:n];
                                     NSArray *a = [s componentsSeparatedByString:@"+"];
-                                    if (n != [[a objectAtIndex:0]intValue]) {
-                                        [stockList replaceObjectAtIndex:n withObject:[sortArr objectAtIndex:n]];
+                                    if (n != [[a objectAtIndex:0]intValue]-1) {
+                                        [stockList replaceObjectAtIndex:[[a objectAtIndex:0]intValue]-1 withObject:[sortArr objectAtIndex:n]];
                                     }
                                 }
                                 

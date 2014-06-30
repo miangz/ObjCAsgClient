@@ -218,6 +218,8 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    
+    [loadingView dismissWithClickedButtonIndex:0 animated:YES];
     // Return the number of rows in the section.
     if (count == 0) {
         return 0;
@@ -539,8 +541,8 @@
 
 - (void)sendMessage:(NSString *)string{
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+    
     if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
         [self closeOutputStream];
     }
@@ -552,7 +554,7 @@
     lastRequest = [[NSString alloc]initWithString:string];
 	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
-    });
+//    });
 }
 
 - (void)sendData:(NSData *)mydata{

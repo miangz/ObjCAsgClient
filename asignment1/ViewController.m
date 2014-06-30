@@ -543,6 +543,7 @@
     
 //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
     
+    dispatch_async(dispatch_get_main_queue(), ^{
     if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
         [self closeOutputStream];
     }
@@ -554,7 +555,7 @@
     lastRequest = [[NSString alloc]initWithString:string];
 	data = [[NSData alloc] initWithData:[string dataUsingEncoding:NSASCIIStringEncoding]];
 	[self.networkStream write:[data bytes] maxLength:[data length]];
-//    });
+    });
 }
 
 - (void)sendData:(NSData *)mydata{

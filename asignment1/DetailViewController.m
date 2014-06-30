@@ -388,7 +388,7 @@
     areaGradient.angle = -90.0;
     CPTFill *areaGradientFill = [CPTFill fillWithGradient:areaGradient];
     dataSourceLinePlot.areaFill      = areaGradientFill;
-    dataSourceLinePlot.areaBaseValue = CPTDecimalFromDouble(max-min/5);//fill under graph to 0
+    dataSourceLinePlot.areaBaseValue = CPTDecimalFromDouble(0);//fill under graph to 0
     
     dataSourceLinePlot.opacity = 0.0;
     [graph addPlot:dataSourceLinePlot];
@@ -526,8 +526,8 @@
 
 - (void)sendMessage:(NSString *)string{
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.networkStream streamStatus]==NSStreamStatusOpen) {
             [self closeOutputStream];
         }

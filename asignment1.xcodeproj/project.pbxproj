@@ -10,7 +10,6 @@
 		EB11A62618F4EF2E00B9E6D6 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA3B218F4125000B08F3C /* XCTest.framework */; };
 		EB11A62C18F4EF2E00B9E6D6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB11A62A18F4EF2E00B9E6D6 /* InfoPlist.strings */; };
 		EB11A62E18F4EF2E00B9E6D6 /* table_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = EB11A62D18F4EF2E00B9E6D6 /* table_Tests.m */; };
-		EB11A63718F6625E00B9E6D6 /* EditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB11A63618F6625E00B9E6D6 /* EditViewController.m */; };
 		EB15E8BA1920D4800071A5C1 /* NetworkManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EB15E8B71920D4800071A5C1 /* NetworkManager.m */; };
 		EB15E8BB1920D4800071A5C1 /* QNetworkAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = EB15E8B91920D4800071A5C1 /* QNetworkAdditions.m */; };
 		EB1A2F8C195BC86C00557DBF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EB7FA3A518F4125000B08F3C /* Main.storyboard */; };
@@ -21,8 +20,9 @@
 		EB2AA6A3194AB74A000EAFB6 /* HandleStockListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB2AA6A2194AB74A000EAFB6 /* HandleStockListViewController.m */; };
 		EB3976D6190FA60000E5F1BB /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3976D5190FA60000E5F1BB /* QuartzCore.framework */; };
 		EB3976D8190FA60800E5F1BB /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3976D7190FA60800E5F1BB /* Accelerate.framework */; };
-		EB3B8A0D18FE3309005930B0 /* StocklistViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB3B8A0C18FE3309005930B0 /* StocklistViewController.m */; };
 		EB4B65851918FF50003C058A /* LogInViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB4B65841918FF50003C058A /* LogInViewController.m */; };
+		EB51FECB1962BC79008D8B99 /* NSStreamManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EB51FECA1962BC79008D8B99 /* NSStreamManager.m */; };
+		EB51FEDA1962DB96008D8B99 /* DetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = EB51FED91962DB96008D8B99 /* DetailView.m */; };
 		EB7FA39418F4125000B08F3C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA39318F4125000B08F3C /* Foundation.framework */; };
 		EB7FA39618F4125000B08F3C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA39518F4125000B08F3C /* CoreGraphics.framework */; };
 		EB7FA39818F4125000B08F3C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB7FA39718F4125000B08F3C /* UIKit.framework */; };
@@ -37,11 +37,10 @@
 		EB7FA3BF18F4125000B08F3C /* asignment1Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7FA3BE18F4125000B08F3C /* asignment1Tests.m */; };
 		EB7FA3CC18F4126100B08F3C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7FA3C918F4126100B08F3C /* ViewController.m */; };
 		EB7FA3CD18F4126100B08F3C /* ProfilerClk.m in Sources */ = {isa = PBXBuildFile; fileRef = EB7FA3CB18F4126100B08F3C /* ProfilerClk.m */; };
+		EB90DCA61963EB1D005ED068 /* search.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB90DCA31963EB1D005ED068 /* search.jpg */; };
+		EB90DCAC1963F297005ED068 /* setting.png in Resources */ = {isa = PBXBuildFile; fileRef = EB90DCAB1963F297005ED068 /* setting.png */; };
+		EB90DCAE1963F3BF005ED068 /* delete.png in Resources */ = {isa = PBXBuildFile; fileRef = EB90DCAD1963F3BF005ED068 /* delete.png */; };
 		EB94382D1910B34A00B4CB1E /* libCorePlot-CocoaTouch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB94382C1910B34500B4CB1E /* libCorePlot-CocoaTouch.a */; };
-		EBF711B7190631DD00C2DAA3 /* BEMAnimations.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF711B0190631DD00C2DAA3 /* BEMAnimations.m */; };
-		EBF711B8190631DD00C2DAA3 /* BEMCircle.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF711B2190631DD00C2DAA3 /* BEMCircle.m */; };
-		EBF711B9190631DD00C2DAA3 /* BEMLine.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF711B4190631DD00C2DAA3 /* BEMLine.m */; };
-		EBF711BA190631DD00C2DAA3 /* BEMSimpleLineGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = EBF711B6190631DD00C2DAA3 /* BEMSimpleLineGraphView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,8 +80,6 @@
 		EB11A62B18F4EF2E00B9E6D6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		EB11A62D18F4EF2E00B9E6D6 /* table_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = table_Tests.m; sourceTree = "<group>"; };
 		EB11A62F18F4EF2E00B9E6D6 /* table Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "table Tests-Prefix.pch"; sourceTree = "<group>"; };
-		EB11A63518F6625E00B9E6D6 /* EditViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditViewController.h; sourceTree = "<group>"; };
-		EB11A63618F6625E00B9E6D6 /* EditViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditViewController.m; sourceTree = "<group>"; };
 		EB15E8B61920D4800071A5C1 /* NetworkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkManager.h; sourceTree = "<group>"; };
 		EB15E8B71920D4800071A5C1 /* NetworkManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkManager.m; sourceTree = "<group>"; };
 		EB15E8B81920D4800071A5C1 /* QNetworkAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QNetworkAdditions.h; sourceTree = "<group>"; };
@@ -97,10 +94,12 @@
 		EB2AA6A2194AB74A000EAFB6 /* HandleStockListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HandleStockListViewController.m; sourceTree = "<group>"; };
 		EB3976D5190FA60000E5F1BB /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		EB3976D7190FA60800E5F1BB /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
-		EB3B8A0B18FE3309005930B0 /* StocklistViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StocklistViewController.h; sourceTree = "<group>"; };
-		EB3B8A0C18FE3309005930B0 /* StocklistViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StocklistViewController.m; sourceTree = "<group>"; };
 		EB4B65831918FF50003C058A /* LogInViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogInViewController.h; sourceTree = "<group>"; };
 		EB4B65841918FF50003C058A /* LogInViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LogInViewController.m; sourceTree = "<group>"; };
+		EB51FEC91962BC79008D8B99 /* NSStreamManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSStreamManager.h; sourceTree = "<group>"; };
+		EB51FECA1962BC79008D8B99 /* NSStreamManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStreamManager.m; sourceTree = "<group>"; };
+		EB51FED81962DB96008D8B99 /* DetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailView.h; sourceTree = "<group>"; };
+		EB51FED91962DB96008D8B99 /* DetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailView.m; sourceTree = "<group>"; };
 		EB7FA39018F4125000B08F3C /* asignment1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = asignment1.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB7FA39318F4125000B08F3C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		EB7FA39518F4125000B08F3C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -122,15 +121,10 @@
 		EB7FA3C918F4126100B08F3C /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		EB7FA3CA18F4126100B08F3C /* ProfilerClk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProfilerClk.h; sourceTree = "<group>"; };
 		EB7FA3CB18F4126100B08F3C /* ProfilerClk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProfilerClk.m; sourceTree = "<group>"; };
+		EB90DCA31963EB1D005ED068 /* search.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = search.jpg; sourceTree = "<group>"; };
+		EB90DCAB1963F297005ED068 /* setting.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = setting.png; sourceTree = "<group>"; };
+		EB90DCAD1963F3BF005ED068 /* delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete.png; sourceTree = "<group>"; };
 		EB9438251910B34500B4CB1E /* CorePlot-CocoaTouch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "CorePlot-CocoaTouch.xcodeproj"; path = "framework/CorePlot-CocoaTouch.xcodeproj"; sourceTree = "<group>"; };
-		EBF711AF190631DD00C2DAA3 /* BEMAnimations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMAnimations.h; sourceTree = "<group>"; };
-		EBF711B0190631DD00C2DAA3 /* BEMAnimations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMAnimations.m; sourceTree = "<group>"; };
-		EBF711B1190631DD00C2DAA3 /* BEMCircle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMCircle.h; sourceTree = "<group>"; };
-		EBF711B2190631DD00C2DAA3 /* BEMCircle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMCircle.m; sourceTree = "<group>"; };
-		EBF711B3190631DD00C2DAA3 /* BEMLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMLine.h; sourceTree = "<group>"; };
-		EBF711B4190631DD00C2DAA3 /* BEMLine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMLine.m; sourceTree = "<group>"; };
-		EBF711B5190631DD00C2DAA3 /* BEMSimpleLineGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMSimpleLineGraphView.h; sourceTree = "<group>"; };
-		EBF711B6190631DD00C2DAA3 /* BEMSimpleLineGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMSimpleLineGraphView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -238,6 +232,8 @@
 				EB9438251910B34500B4CB1E /* CorePlot-CocoaTouch.xcodeproj */,
 				EB7FA3A218F4125000B08F3C /* AppDelegate.h */,
 				EB7FA3A318F4125000B08F3C /* AppDelegate.m */,
+				EB51FEC91962BC79008D8B99 /* NSStreamManager.h */,
+				EB51FECA1962BC79008D8B99 /* NSStreamManager.m */,
 				EB7FA3A518F4125000B08F3C /* Main.storyboard */,
 				EB4B65831918FF50003C058A /* LogInViewController.h */,
 				EB4B65841918FF50003C058A /* LogInViewController.m */,
@@ -247,10 +243,10 @@
 				EB7FA3C918F4126100B08F3C /* ViewController.m */,
 				EB1A7F2818FE9C4500EAAB04 /* DetailViewController.h */,
 				EB1A7F2918FE9C4500EAAB04 /* DetailViewController.m */,
+				EB51FED81962DB96008D8B99 /* DetailView.h */,
+				EB51FED91962DB96008D8B99 /* DetailView.m */,
 				EB2AA6A1194AB74A000EAFB6 /* HandleStockListViewController.h */,
 				EB2AA6A2194AB74A000EAFB6 /* HandleStockListViewController.m */,
-				EB3B8A0B18FE3309005930B0 /* StocklistViewController.h */,
-				EB3B8A0C18FE3309005930B0 /* StocklistViewController.m */,
 				EB7FA3CA18F4126100B08F3C /* ProfilerClk.h */,
 				EB7FA3CB18F4126100B08F3C /* ProfilerClk.m */,
 				EB22FCED1919DEEA00EFD344 /* checked.jpg */,
@@ -265,10 +261,10 @@
 			isa = PBXGroup;
 			children = (
 				EB15E8BE1920D4840071A5C1 /* StreamsSet */,
-				EB11A63518F6625E00B9E6D6 /* EditViewController.h */,
-				EB11A63618F6625E00B9E6D6 /* EditViewController.m */,
+				EB90DCAB1963F297005ED068 /* setting.png */,
+				EB90DCA31963EB1D005ED068 /* search.jpg */,
+				EB90DCAD1963F3BF005ED068 /* delete.png */,
 				EB7FA39B18F4125000B08F3C /* asignment1-Info.plist */,
-				EBF711AE1906319A00C2DAA3 /* BEMA */,
 				EB7FA39C18F4125000B08F3C /* InfoPlist.strings */,
 				EB7FA39F18F4125000B08F3C /* main.m */,
 				EB7FA3A118F4125000B08F3C /* asignment1-Prefix.pch */,
@@ -300,21 +296,6 @@
 				EB94382C1910B34500B4CB1E /* libCorePlot-CocoaTouch.a */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		EBF711AE1906319A00C2DAA3 /* BEMA */ = {
-			isa = PBXGroup;
-			children = (
-				EBF711AF190631DD00C2DAA3 /* BEMAnimations.h */,
-				EBF711B0190631DD00C2DAA3 /* BEMAnimations.m */,
-				EBF711B1190631DD00C2DAA3 /* BEMCircle.h */,
-				EBF711B2190631DD00C2DAA3 /* BEMCircle.m */,
-				EBF711B3190631DD00C2DAA3 /* BEMLine.h */,
-				EBF711B4190631DD00C2DAA3 /* BEMLine.m */,
-				EBF711B5190631DD00C2DAA3 /* BEMSimpleLineGraphView.h */,
-				EBF711B6190631DD00C2DAA3 /* BEMSimpleLineGraphView.m */,
-			);
-			name = BEMA;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -444,11 +425,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB90DCAE1963F3BF005ED068 /* delete.png in Resources */,
 				EB1A2F8C195BC86C00557DBF /* Main.storyboard in Resources */,
 				EB7FA3AC18F4125000B08F3C /* Images.xcassets in Resources */,
 				EB7FA39E18F4125000B08F3C /* InfoPlist.strings in Resources */,
 				EB22FCEE1919DEEA00EFD344 /* checked.jpg in Resources */,
 				EB22FCF01919DEF800EFD344 /* unchecked.jpg in Resources */,
+				EB90DCA61963EB1D005ED068 /* search.jpg in Resources */,
+				EB90DCAC1963F297005ED068 /* setting.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -475,22 +459,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EBF711BA190631DD00C2DAA3 /* BEMSimpleLineGraphView.m in Sources */,
-				EBF711B9190631DD00C2DAA3 /* BEMLine.m in Sources */,
 				EB7FA3CC18F4126100B08F3C /* ViewController.m in Sources */,
-				EBF711B7190631DD00C2DAA3 /* BEMAnimations.m in Sources */,
-				EB3B8A0D18FE3309005930B0 /* StocklistViewController.m in Sources */,
 				EB2AA6A3194AB74A000EAFB6 /* HandleStockListViewController.m in Sources */,
 				EB15E8BB1920D4800071A5C1 /* QNetworkAdditions.m in Sources */,
 				EB7FA3CD18F4126100B08F3C /* ProfilerClk.m in Sources */,
 				EB7FA3A418F4125000B08F3C /* AppDelegate.m in Sources */,
 				EB7FA3A018F4125000B08F3C /* main.m in Sources */,
 				EB15E8BA1920D4800071A5C1 /* NetworkManager.m in Sources */,
+				EB51FEDA1962DB96008D8B99 /* DetailView.m in Sources */,
 				EB4B65851918FF50003C058A /* LogInViewController.m in Sources */,
-				EB11A63718F6625E00B9E6D6 /* EditViewController.m in Sources */,
+				EB51FECB1962BC79008D8B99 /* NSStreamManager.m in Sources */,
 				EB1A7F2A18FE9C4500EAAB04 /* DetailViewController.m in Sources */,
 				EB22FCF31919EB2B00EFD344 /* SignUpViewController.m in Sources */,
-				EBF711B8190631DD00C2DAA3 /* BEMCircle.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

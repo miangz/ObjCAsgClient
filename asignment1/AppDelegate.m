@@ -9,11 +9,8 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 #import "LogInViewController.h"
-
-@implementation AppDelegate{
-    NSInputStream *inputStream;
-    NSOutputStream *outputStream;
-}
+#import "NSStreamManager.h"
+@implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -27,6 +24,10 @@
         LogInViewController *view = [[LogInViewController alloc]init];
         self.window.rootViewController = view;
     }
+    
+    NSStreamManager *myManager = [NSStreamManager sharedManager];
+    [myManager startServer];
+    
     return YES;
 }
 
